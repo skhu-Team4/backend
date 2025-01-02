@@ -36,4 +36,21 @@ public class ChatRoomService {
         return chatRoom.get().getStatus();
     }
 
+    public void updateChatRoomStatus(int chatId, boolean accepted) {
+        Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatId);
+        if (chatRoomOptional.isEmpty()) {
+            throw new IllegalArgumentException("채팅방이 존재하지 않습니다.");
+        }
+
+        ChatRoom chatRoom = chatRoomOptional.get();
+
+        if (accepted) {
+            chatRoom.setStatus(ChatRoomStatus.IN_CHAT);
+        } else {
+            chatRoom.setStatus(ChatRoomStatus.WAITING);
+        }
+
+        chatRoomRepository.save(chatRoom);
+    }
+
 }
