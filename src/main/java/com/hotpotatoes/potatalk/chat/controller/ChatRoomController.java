@@ -1,6 +1,7 @@
 package com.hotpotatoes.potatalk.chat.controller;
 
 import com.hotpotatoes.potatalk.chat.domain.ChatRoomStatus;
+import com.hotpotatoes.potatalk.chat.dto.ChatRoomConnectRequestDto;
 import com.hotpotatoes.potatalk.chat.dto.ChatRoomResponseDto;
 import com.hotpotatoes.potatalk.chat.domain.ChatRoom;
 import com.hotpotatoes.potatalk.chat.dto.MatchResponseDto;
@@ -13,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/chat")
 @RequiredArgsConstructor
-public class ChatController {
+public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
 
@@ -41,5 +42,13 @@ public class ChatController {
     ) {
         chatRoomService.updateChatRoomStatus(chatId, matchResponseDto.isAccepted());
         return matchResponseDto.isAccepted() ? "매칭이 수락되었습니다." : "매칭이 거절되었습니다.";
+    }
+
+    @PostMapping("/{chatId}/connect")
+    public String connectToChatRoom(
+            @PathVariable("chatId") int chatId,
+            @RequestBody ChatRoomConnectRequestDto connectRequestDto
+    ) {
+        return chatRoomService.connectToChatRoom(chatId, connectRequestDto.getUserId());
     }
 }
