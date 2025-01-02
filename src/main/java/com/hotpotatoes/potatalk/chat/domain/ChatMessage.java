@@ -1,4 +1,4 @@
-package com.hotpotatoes.potatalk.chat.entity;
+package com.hotpotatoes.potatalk.chat.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

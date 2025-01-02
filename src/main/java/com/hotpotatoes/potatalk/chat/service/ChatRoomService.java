@@ -1,7 +1,7 @@
 package com.hotpotatoes.potatalk.chat.service;
 
 import com.hotpotatoes.potatalk.chat.dto.ChatRoomResponseDto;
-import com.hotpotatoes.potatalk.chat.entity.ChatRoom;
+import com.hotpotatoes.potatalk.chat.domain.ChatRoom;
 import com.hotpotatoes.potatalk.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,4 +25,5 @@ public class ChatRoomService {
     public List<ChatRoom> getAllChatRooms() {
         return chatRoomRepository.findAll();
     }
+
 }

@@ -1,4 +1,4 @@
-package com.hotpotatoes.potatalk.chat.entity;
+package com.hotpotatoes.potatalk.chat.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
