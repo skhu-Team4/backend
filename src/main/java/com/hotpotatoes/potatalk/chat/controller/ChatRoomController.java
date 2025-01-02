@@ -49,6 +49,10 @@ public class ChatRoomController {
             @PathVariable("chatId") int chatId,
             @RequestBody ChatRoomConnectRequestDto connectRequestDto
     ) {
-        return chatRoomService.connectToChatRoom(chatId, connectRequestDto.getUserId());
+        // 사용자를 채팅방에 연결
+        chatRoomService.connectToChatRoom(chatId, connectRequestDto.getUserId());
+
+        // WebSocket 연결 정보를 반환
+        return "ws://localhost:8080/ws";
     }
 }
