@@ -15,4 +15,8 @@ public class ChatPhoto {
 
     @Column(length = 255, nullable = false, updatable = false)
     private String photo_url;
+
+    @ManyToOne
+    @JoinColumn(name = "chat_id")
+    private ChatRoom chatRoom;
 }

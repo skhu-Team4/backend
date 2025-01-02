@@ -25,6 +25,6 @@ public class ChatMessage {
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn
-    ChatRoom chatRoom;
+    @JoinColumn(name = "chat_id")
+    private ChatRoom chatRoom;
 }

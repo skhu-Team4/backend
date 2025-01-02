@@ -17,6 +17,6 @@ public class ChatVideo {
     private String video_url;
 
     @ManyToOne
-    @JoinColumn
-    ChatRoom chatRoom;
+    @JoinColumn(name = "chat_id")
+    private ChatRoom chatRoom;
 }

@@ -1,20 +1,11 @@
 package com.hotpotatoes.potatalk.chat.dto;
 
+import lombok.Data;
+import java.time.LocalDateTime;
 
-import lombok.*;
-
-@Builder
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 public class ChatMessageDto {
-    public enum MessageType{
-        ENTER, TALK
-    }
-
-    private MessageType messageType;
-    private Long chatRoomId;
-    private Long senderId;
-    private String message;
+    private String messageContent;
+    private int chatRoomId;
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

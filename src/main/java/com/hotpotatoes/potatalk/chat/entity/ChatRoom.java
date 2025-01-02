@@ -1,9 +1,11 @@
 package com.hotpotatoes.potatalk.chat.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -12,12 +14,20 @@ public class ChatRoom {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int chat_id;
+    private int chatId;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne
-    @JoinColumn
-    ChatRoom chatRoom;
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("chatRoom")
+    private List<ChatMessage> messages;
+
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("chatRoom")
+    private List<ChatPhoto> photos;
+
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("chatRoom")
+    private List<ChatVideo> videos;
 }
