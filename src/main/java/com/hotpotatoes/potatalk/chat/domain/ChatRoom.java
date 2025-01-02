@@ -19,6 +19,9 @@ public class ChatRoom {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Enumerated(EnumType.STRING)
+    private ChatRoomStatus status;
+
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("chatRoom")
     private List<ChatMessage> messages;
