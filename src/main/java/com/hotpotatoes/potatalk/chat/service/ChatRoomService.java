@@ -18,7 +18,6 @@ import java.util.Optional;
 public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
-    private final ChatMessageRepository chatMessageRepository;
 
     public ChatRoomResponseDto createChatRoom() {
         ChatRoom chatRoom = new ChatRoom();
@@ -81,24 +80,6 @@ public class ChatRoomService {
         chatRoomRepository.save(chatRoom);
 
         return "사용자 " + userId + "가 채팅방 " + chatId + "에 연결되었습니다.";
-    }
-
-    public void saveMessage(int chatId, ChatMessageDto messageDto) {
-        Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatId);
-
-        if (chatRoomOptional.isEmpty()) {
-            throw new IllegalArgumentException("채팅방이 존재하지 않습니다.");
-        }
-
-        ChatRoom chatRoom = chatRoomOptional.get();
-
-        // 메시지 저장
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setMessageContent(messageDto.getContent());
-        chatMessage.setCreatedAt(LocalDateTime.now());
-        chatMessage.setChatRoom(chatRoom);
-
-        chatMessageRepository.save(chatMessage);
     }
 
 }

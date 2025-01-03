@@ -7,6 +7,7 @@ import com.hotpotatoes.potatalk.chat.dto.ChatRoomResponseDto;
 import com.hotpotatoes.potatalk.chat.domain.ChatRoom;
 import com.hotpotatoes.potatalk.chat.dto.MatchResponseDto;
 import com.hotpotatoes.potatalk.chat.service.ChatRoomService;
+import com.hotpotatoes.potatalk.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -19,6 +20,7 @@ import java.util.List;
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
+    private final ChatMessageService chatMessageService;
     private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping
@@ -66,7 +68,7 @@ public class ChatRoomController {
             @RequestBody ChatMessageDto messageDto
     ) {
         // 메시지를 저장하고 WebSocket으로 전송
-        chatRoomService.saveMessage(chatId, messageDto);
+        chatMessageService.saveMessage(chatId, messageDto);
         messagingTemplate.convertAndSend("/topic/chat/" + chatId, messageDto);
     }
 }
