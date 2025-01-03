@@ -2,12 +2,14 @@ package com.hotpotatoes.potatalk.chat.service;
 
 import com.hotpotatoes.potatalk.chat.domain.ChatMessage;
 import com.hotpotatoes.potatalk.chat.domain.ChatRoom;
+import com.hotpotatoes.potatalk.chat.domain.ChatRoomStatus;
 import com.hotpotatoes.potatalk.chat.dto.ChatMessageDto;
 import com.hotpotatoes.potatalk.chat.repository.ChatMessageRepository;
 import com.hotpotatoes.potatalk.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,5 +41,21 @@ public class ChatMessageService {
         ChatMessage chatMessage = chatMessageRepository.findById(messageId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 메시지가 존재하지 않습니다. id : " + messageId));
         chatMessageRepository.delete(chatMessage);
+    }
+
+    public void readMessage(int chatId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방이 존재하지 않습니다. id : " + chatId));
+
+        List<ChatMessage> chatMessageList = chatRoom.getMessages();
+
+        if(chatRoom.getStatus() == ChatRoomStatus.IN_CHAT) {
+            chatMessageList.forEach(chatMessage -> {
+                if (!chatMessage.getIsRead()) {
+                    chatMessage.setIsRead(true);
+                }
+                chatMessageRepository.save(chatMessage);
+            });
+        }
     }
 }

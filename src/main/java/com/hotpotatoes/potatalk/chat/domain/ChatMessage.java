@@ -24,6 +24,8 @@ public class ChatMessage {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    private Boolean isRead = false;
+
     @ManyToOne
     @JoinColumn(name = "chat_id")
     private ChatRoom chatRoom;
