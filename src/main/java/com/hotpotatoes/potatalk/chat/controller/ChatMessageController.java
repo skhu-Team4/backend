@@ -19,7 +19,7 @@ public class ChatMessageController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageService chatMessageService;
 
-    @MessageMapping("/chat/message")
+    @MessageMapping("/message")
     public void handleChatMessage(ChatMessageDto message) {
         // 메시지를 해당 채팅방으로 전달
         messagingTemplate.convertAndSend("/topic/chat/" + message.getChatId(), message);
