@@ -5,11 +5,11 @@ import com.hotpotatoes.potatalk.chat.dto.ChatMessageDto;
 import com.hotpotatoes.potatalk.chat.dto.ChatRoomConnectRequestDto;
 import com.hotpotatoes.potatalk.chat.dto.ChatRoomResponseDto;
 import com.hotpotatoes.potatalk.chat.domain.ChatRoom;
-import com.hotpotatoes.potatalk.chat.dto.MatchResponseDto;
 import com.hotpotatoes.potatalk.chat.service.ChatRoomService;
 import com.hotpotatoes.potatalk.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -23,10 +23,12 @@ public class ChatRoomController {
     private final ChatMessageService chatMessageService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @PostMapping
-    public ResponseEntity<ChatRoomResponseDto> createChatRoom() {
-        ChatRoomResponseDto response = chatRoomService.createChatRoom();
-        return ResponseEntity.ok(response);
+    @MessageMapping("/chat/create")
+    public void createChatRoom(String userId) {
+        ChatRoomResponseDto chatRoom = chatRoomService.createChatRoom();
+
+        // 클라이언트로 생성된 채팅방 정보 전송
+        messagingTemplate.convertAndSend("/topic/chat/create/" + userId, chatRoom);
     }
 
     @GetMapping
@@ -40,25 +42,21 @@ public class ChatRoomController {
         return chatRoomService.getChatRoomStatus(chatId);
     }
 
-    @PutMapping("/{chatId}/status")
-    public String updateChatRoomStatus(
-            @PathVariable("chatId") int chatId,
-            @RequestBody MatchResponseDto matchResponseDto
-    ) {
-        chatRoomService.updateChatRoomStatus(chatId, matchResponseDto.isAccepted());
-        return matchResponseDto.isAccepted() ? "매칭이 수락되었습니다." : "매칭이 거절되었습니다.";
+    @MessageMapping("/chat/status")
+    public void updateChatRoomStatus(int chatId, boolean accepted) {
+        chatRoomService.updateChatRoomStatus(chatId, accepted);
+
+        // 채팅방 상태 변경 알림 전송
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/status",
+                accepted ? "Chat room status updated to IN_CHAT" : "Chat room status updated to WAITING");
     }
 
-    @PostMapping("/{chatId}/connect")
-    public String connectToChatRoom(
-            @PathVariable("chatId") int chatId,
-            @RequestBody ChatRoomConnectRequestDto connectRequestDto
-    ) {
-        // 사용자를 채팅방에 연결
-        chatRoomService.connectToChatRoom(chatId, connectRequestDto.getUserId());
+    @MessageMapping("/chat/connect")
+    public void connectToChatRoom(ChatRoomConnectRequestDto connectRequestDto) {
+        String response = chatRoomService.connectToChatRoom(connectRequestDto.getChatId(), connectRequestDto.getUserId());
 
-        // WebSocket 연결 정보를 반환
-        return "ws://localhost:8080/ws";
+        // 연결 상태를 클라이언트로 전송
+        messagingTemplate.convertAndSend("/topic/chat/connect/" + connectRequestDto.getChatId(), response);
     }
 
     // REST API로 메시지 전송 및 저장

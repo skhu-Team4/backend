@@ -6,5 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChatRoomConnectRequestDto {
-    private String userId; // 연결 요청 사용자 ID
+    private int chatId;
+    private String userId;
 }

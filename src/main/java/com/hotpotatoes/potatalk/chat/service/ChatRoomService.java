@@ -1,17 +1,15 @@
 package com.hotpotatoes.potatalk.chat.service;
 
-import com.hotpotatoes.potatalk.chat.domain.ChatMessage;
 import com.hotpotatoes.potatalk.chat.domain.ChatRoomStatus;
-import com.hotpotatoes.potatalk.chat.dto.ChatMessageDto;
 import com.hotpotatoes.potatalk.chat.dto.ChatRoomResponseDto;
 import com.hotpotatoes.potatalk.chat.domain.ChatRoom;
-import com.hotpotatoes.potatalk.chat.repository.ChatMessageRepository;
 import com.hotpotatoes.potatalk.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import static com.hotpotatoes.potatalk.chat.domain.ChatRoomStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -21,10 +19,11 @@ public class ChatRoomService {
 
     public ChatRoomResponseDto createChatRoom() {
         ChatRoom chatRoom = new ChatRoom();
+        chatRoom.setStatus(WAITING);
         chatRoom.setCreatedAt(LocalDateTime.now());
 
         ChatRoom savedRoom = chatRoomRepository.save(chatRoom);
-        return new ChatRoomResponseDto(savedRoom.getChatId(), savedRoom.getCreatedAt());
+        return new ChatRoomResponseDto(savedRoom.getChatId(), savedRoom.getStatus(), savedRoom.getCreatedAt());
     }
 
     public List<ChatRoom> getAllChatRooms() {
@@ -50,7 +49,7 @@ public class ChatRoomService {
         if (accepted) {
             chatRoom.setStatus(ChatRoomStatus.IN_CHAT);
         } else {
-            chatRoom.setStatus(ChatRoomStatus.WAITING);
+            chatRoom.setStatus(WAITING);
         }
 
         chatRoomRepository.save(chatRoom);
