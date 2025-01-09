@@ -48,7 +48,7 @@ public class ChatRoomController {
 
         // 채팅방 상태 변경 알림 전송
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/status",
-                accepted ? "Chat room status updated to IN_CHAT" : "Chat room status updated to WAITING");
+                accepted ? "채팅방 상태가 '채팅 중'으로 변경되었습니다." : "채팅방 상태가 '대기 중'으로 변경되었습니다.");
     }
 
     @MessageMapping("/chat/connect")
