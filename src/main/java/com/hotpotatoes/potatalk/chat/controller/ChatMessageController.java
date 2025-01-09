@@ -6,15 +6,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
+@RequestMapping("/api/chat")
 @RequiredArgsConstructor
 public class ChatMessageController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageService chatMessageService;
 
-    @MessageMapping("/chat/message")
+    @MessageMapping("/message")
     public void handleChatMessage(ChatMessageDto message) {
         chatMessageService.saveMessage(message.getChatId(), message);
 
@@ -22,7 +24,7 @@ public class ChatMessageController {
         messagingTemplate.convertAndSend("/topic/chat/" + message.getChatId(), message);
     }
 
-    @MessageMapping("/chat/read")
+    @MessageMapping("/messages/read")
     public void markMessagesAsRead(int chatId) {
         chatMessageService.readMessage(chatId);
 
@@ -30,7 +32,7 @@ public class ChatMessageController {
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/read", "Messages marked as read");
     }
 
-    @MessageMapping("/chat/delete")
+    @MessageMapping("/message/delete")
     public void deleteChatMessage(int messageId) {
         chatMessageService.deleteMessage(messageId);
 

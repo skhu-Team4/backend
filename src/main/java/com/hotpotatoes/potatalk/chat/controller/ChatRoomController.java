@@ -11,10 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping("/api/chat")
 @RequiredArgsConstructor
 public class ChatRoomController {
@@ -23,7 +24,7 @@ public class ChatRoomController {
     private final ChatMessageService chatMessageService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @MessageMapping("/chat/create")
+    @MessageMapping("/create")
     public void createChatRoom(String userId) {
         ChatRoomResponseDto chatRoom = chatRoomService.createChatRoom();
 
@@ -42,7 +43,7 @@ public class ChatRoomController {
         return chatRoomService.getChatRoomStatus(chatId);
     }
 
-    @MessageMapping("/chat/status")
+    @MessageMapping("/status")
     public void updateChatRoomStatus(int chatId, boolean accepted) {
         chatRoomService.updateChatRoomStatus(chatId, accepted);
 
@@ -51,22 +52,11 @@ public class ChatRoomController {
                 accepted ? "채팅방 상태가 '채팅 중'으로 변경되었습니다." : "채팅방 상태가 '대기 중'으로 변경되었습니다.");
     }
 
-    @MessageMapping("/chat/connect")
+    @MessageMapping("/connect")
     public void connectToChatRoom(ChatRoomConnectRequestDto connectRequestDto) {
         String response = chatRoomService.connectToChatRoom(connectRequestDto.getChatId(), connectRequestDto.getUserId());
 
         // 연결 상태를 클라이언트로 전송
         messagingTemplate.convertAndSend("/topic/chat/connect/" + connectRequestDto.getChatId(), response);
-    }
-
-    // REST API로 메시지 전송 및 저장
-    @PostMapping("/{chatId}/messages")
-    public void sendMessageToChatRoom(
-            @PathVariable("chatId") int chatId,
-            @RequestBody ChatMessageDto messageDto
-    ) {
-        // 메시지를 저장하고 WebSocket으로 전송
-        chatMessageService.saveMessage(chatId, messageDto);
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId, messageDto);
     }
 }
