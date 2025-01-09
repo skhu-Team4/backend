@@ -1,12 +1,10 @@
 package com.hotpotatoes.potatalk.chat.controller;
 
 import com.hotpotatoes.potatalk.chat.domain.ChatRoomStatus;
-import com.hotpotatoes.potatalk.chat.dto.ChatMessageDto;
 import com.hotpotatoes.potatalk.chat.dto.ChatRoomConnectRequestDto;
 import com.hotpotatoes.potatalk.chat.dto.ChatRoomResponseDto;
 import com.hotpotatoes.potatalk.chat.domain.ChatRoom;
 import com.hotpotatoes.potatalk.chat.service.ChatRoomService;
-import com.hotpotatoes.potatalk.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -21,7 +19,6 @@ import java.util.List;
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
-    private final ChatMessageService chatMessageService;
     private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/create")
@@ -59,4 +56,13 @@ public class ChatRoomController {
         // 연결 상태를 클라이언트로 전송
         messagingTemplate.convertAndSend("/topic/chat/connect/" + connectRequestDto.getChatId(), response);
     }
+
+    @MessageMapping("/disconnect")
+    public void disconnectFromChatRoom(ChatRoomConnectRequestDto connectRequestDto) {
+        String response = chatRoomService.disconnectFromChatRoom(connectRequestDto.getChatId(), connectRequestDto.getUserId());
+
+        // 연결 종료 상태 WebSocket으로 전송
+        messagingTemplate.convertAndSend("/topic/chat/disconnect/" + connectRequestDto.getChatId(), response);
+    }
+
 }
