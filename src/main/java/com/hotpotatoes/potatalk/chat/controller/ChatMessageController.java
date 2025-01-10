@@ -19,7 +19,7 @@ public class ChatMessageController {
     private final ChatMessageService chatMessageService;
     private final ChatMediaService chatMediaService;
 
-    @MessageMapping("/message")
+    @MessageMapping("/{chatId}/messages")
     public void handleChatMessage(ChatMessageDto message) {
         chatMessageService.saveMessage(message.getChatId(), message);
 
@@ -32,7 +32,7 @@ public class ChatMessageController {
         chatMessageService.readMessage(chatId);
 
         // 메시지가 읽음 처리된 이벤트를 클라이언트로 전송
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/read", "Messages marked as read");
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/read", "메시지가 읽음 처리되었습니다.");
     }
 
     @MessageMapping("/message/delete")
@@ -40,7 +40,8 @@ public class ChatMessageController {
         chatMessageService.deleteMessage(messageId);
 
         // 삭제된 메시지 정보를 클라이언트로 전송
-        messagingTemplate.convertAndSend("/topic/chat/delete", "Message " + messageId + " deleted");
+        String responseMessage = "메시지 " + messageId + "가 삭제되었습니다.";
+        messagingTemplate.convertAndSend("/topic/chat/delete", responseMessage);
     }
 
     @PostMapping("/{chatId}/upload/photo")

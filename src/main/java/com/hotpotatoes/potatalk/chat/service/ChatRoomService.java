@@ -7,7 +7,6 @@ import com.hotpotatoes.potatalk.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -68,7 +67,9 @@ public class ChatRoomService {
 
         ChatRoom chatRoom = chatRoomOptional.get();
 
-        // 사용자를 연결된 사용자 리스트에 추가
+        // Lazy 로딩을 피하기 위해 명시적으로 connectedUsers를 초기화
+        chatRoom.getConnectedUsers().size(); // EAGER 로딩된 상태이므로, size() 호출로 초기화
+
         if (chatRoom.getConnectedUsers().contains(userId)) {
             return "사용자 " + userId + "는 이미 채팅방에 연결되어 있습니다.";
         }
@@ -95,6 +96,9 @@ public class ChatRoomService {
         }
 
         ChatRoom chatRoom = chatRoomOptional.get();
+
+        // Lazy 로딩을 피하기 위해 명시적으로 connectedUsers를 초기화
+        chatRoom.getConnectedUsers().size(); // EAGER 로딩된 상태이므로, size() 호출로 초기화
 
         // 연결된 사용자 리스트에서 사용자 제거
         if (!chatRoom.getConnectedUsers().contains(userId)) {

@@ -36,8 +36,9 @@ public class ChatRoom {
     @JsonIgnoreProperties("chatRoom")
     private List<ChatVideo> videos;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "chat_room_users", joinColumns = @JoinColumn(name = "chat_id"))
     @Column(name = "user_id")
-    private Set<String> connectedUsers = new HashSet<>(); // 연결된 사용자 리스트
+    private Set<String> connectedUsers = new HashSet<>();
+
 }

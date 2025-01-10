@@ -4,6 +4,7 @@ import com.hotpotatoes.potatalk.chat.domain.ChatRoomStatus;
 import com.hotpotatoes.potatalk.chat.dto.ChatRoomConnectRequestDto;
 import com.hotpotatoes.potatalk.chat.dto.ChatRoomResponseDto;
 import com.hotpotatoes.potatalk.chat.domain.ChatRoom;
+import com.hotpotatoes.potatalk.chat.dto.ChatRoomStatusUpdateDto;
 import com.hotpotatoes.potatalk.chat.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -40,12 +41,12 @@ public class ChatRoomController {
     }
 
     @MessageMapping("/status")
-    public void updateChatRoomStatus(int chatId, boolean accepted) {
-        chatRoomService.updateChatRoomStatus(chatId, accepted);
+    public void updateChatRoomStatus(ChatRoomStatusUpdateDto statusUpdateDto) {
+        chatRoomService.updateChatRoomStatus(statusUpdateDto.getChatId(), statusUpdateDto.isAccepted());
 
         // 채팅방 상태 변경 알림 전송
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/status",
-                accepted ? "채팅방 상태가 '채팅 중'으로 변경되었습니다." : "채팅방 상태가 '대기 중'으로 변경되었습니다.");
+        messagingTemplate.convertAndSend("/topic/chat/" + statusUpdateDto.getChatId() + "/status",
+                statusUpdateDto.isAccepted() ? "채팅방 상태가 '채팅 중'으로 변경되었습니다." : "채팅방 상태가 '대기 중'으로 변경되었습니다.");
     }
 
     @MessageMapping("/connect")
@@ -53,7 +54,10 @@ public class ChatRoomController {
         String response = chatRoomService.connectToChatRoom(connectRequestDto.getChatId(), connectRequestDto.getUserId());
 
         // 연결 상태를 클라이언트로 전송
-        messagingTemplate.convertAndSend("/topic/chat/connect/" + connectRequestDto.getChatId(), response);
+        String message = "사용자 " + connectRequestDto.getUserId() + "가 채팅방 " + connectRequestDto.getChatId() + "에 연결되었습니다.";
+
+        // 연결 상태를 클라이언트에게 전송
+        messagingTemplate.convertAndSend("/topic/chat/connect/" + connectRequestDto.getChatId(), message);
     }
 
     @MessageMapping("/disconnect")
