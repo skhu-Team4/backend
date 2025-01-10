@@ -11,10 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +23,7 @@ public class ChatMediaService {
     private final ChatVideoRepository chatVideoRepository;
 
     @Transactional
-    public String savePhoto(int chatId, MultipartFile file) {
+    public String savePhoto(int chatId, MultipartFile file) throws IOException {
         Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatId);
         if (chatRoomOptional.isEmpty()) {
             throw new IllegalArgumentException("채팅방이 존재하지 않습니다. id: " + chatId);
@@ -33,18 +31,12 @@ public class ChatMediaService {
 
         ChatRoom chatRoom = chatRoomOptional.get();
 
-        // 파일 저장
-        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        File savedFile = new File("uploads/photos/" + fileName);
-        try {
-            file.transferTo(savedFile);
-        } catch (IOException e) {
-            throw new RuntimeException("파일 저장 중 오류 발생: " + e.getMessage());
-        }
+        // FileUploader 클래스의 savePhoto 메서드를 사용하여 파일을 저장
+        String photoUrl = FileUploader.savePhoto(file);
 
         // 데이터베이스에 저장
         ChatPhoto chatPhoto = new ChatPhoto();
-        chatPhoto.setPhoto_url("/uploads/photos/" + fileName);
+        chatPhoto.setPhoto_url(photoUrl);
         chatPhoto.setChatRoom(chatRoom);
 
         chatPhotoRepository.save(chatPhoto);
@@ -53,7 +45,7 @@ public class ChatMediaService {
     }
 
     @Transactional
-    public String saveVideo(int chatId, MultipartFile file) {
+    public String saveVideo(int chatId, MultipartFile file) throws IOException {
         Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatId);
         if (chatRoomOptional.isEmpty()) {
             throw new IllegalArgumentException("채팅방이 존재하지 않습니다. id: " + chatId);
@@ -61,18 +53,12 @@ public class ChatMediaService {
 
         ChatRoom chatRoom = chatRoomOptional.get();
 
-        // 파일 저장
-        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        File savedFile = new File("uploads/videos/" + fileName);
-        try {
-            file.transferTo(savedFile);
-        } catch (IOException e) {
-            throw new RuntimeException("파일 저장 중 오류 발생: " + e.getMessage());
-        }
+        // FileUploader 클래스의 savePhoto 메서드를 사용하여 영상 파일을 저장 (비디오 업로드 로직)
+        String videoUrl = FileUploader.saveVideo(file);
 
         // 데이터베이스에 저장
         ChatVideo chatVideo = new ChatVideo();
-        chatVideo.setVideo_url("/uploads/videos/" + fileName);
+        chatVideo.setVideo_url(videoUrl);
         chatVideo.setChatRoom(chatRoom);
 
         chatVideoRepository.save(chatVideo);

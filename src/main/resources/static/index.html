@@ -15,10 +15,9 @@
     let stompClient; // stompClient 변수를 전역으로 설정
     let subscriptions = {}; // 구독 정보를 저장할 객체
 
+    // WebSocket 연결 함수
     function connectWebSocket() {
-      const url = $('#websocketUrl').val(); // 웹소켓 URL 가져오기
-
-      // websocket URL을 사용하여 stompClient 초기화
+      const url = "ws://localhost:8080/ws"; // 웹소켓 URL
       stompClient = Stomp.client(url);
       stompClient.connect({}, stompConnectHandler, stompErrorHandler);
     }
@@ -31,15 +30,15 @@
       console.error('stomp connect error - ', e);
     }
 
+    // 구독 경로 처리 함수
     function subscribeToPath(path) {
       const subscription = stompClient.subscribe(path, (data) => {
         displayMessage(data.body); // 메시지 수신 시 displayMessage 호출
       });
-
-      // 구독 정보를 저장
-      subscriptions[path] = subscription;
+      subscriptions[path] = subscription; // 구독 정보를 저장
     }
 
+    // 구독 해제 처리
     function unsubscribeFromPath(path) {
       if (subscriptions[path]) {
         subscriptions[path].unsubscribe(); // 구독 해제
@@ -48,9 +47,9 @@
       }
     }
 
+    // 메시지 출력 함수
     function displayMessage(messageData) {
       const messageBox = $('#messageBox');
-      // 수신된 메시지에서 message만 추출하여 추가
       messageBox.append(`<div class="alert alert-info">${messageData}</div>`);
       messageBox.scrollTop(messageBox[0].scrollHeight);
     }
@@ -91,6 +90,60 @@
         $(this).hide(); // 구독 해제 버튼 숨김
       });
 
+      // 사진 업로드 버튼 클릭 시
+      $('#uploadPhotoBtn').click(function () {
+        const chatId = $('#chatId').val(); // chatId 값을 가져옵니다
+        if (!chatId) {
+          alert("채팅방 ID를 입력해주세요!");
+          return;
+        }
+        const file = $('#photoFile')[0].files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        // 사진 업로드 DESTINATION PATH와 MESSAGE (JSON)
+        const destinationPath = `/api/chat/${chatId}/upload/photo`;
+        const messageJson = JSON.stringify({ "chatId": chatId });
+
+        axios.post(destinationPath, formData, { headers: { "Content-Type": "multipart/form-data" } })
+                .then(response => {
+                  console.log("사진 업로드 성공", response.data);
+                  displayMessage("사진 업로드 성공");
+                  stompClient.send(destinationPath, {}, messageJson); // 메시지 전송
+                })
+                .catch(error => {
+                  console.error("사진 업로드 실패", error);
+                  displayMessage("사진 업로드 실패");
+                });
+      });
+
+      // 영상 업로드 버튼 클릭 시
+      $('#uploadVideoBtn').click(function () {
+        const chatId = $('#chatId').val(); // chatId 값을 가져옵니다
+        if (!chatId) {
+          alert("채팅방 ID를 입력해주세요!");
+          return;
+        }
+        const file = $('#videoFile')[0].files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        // 영상 업로드 DESTINATION PATH와 MESSAGE (JSON)
+        const destinationPath = `/api/chat/${chatId}/upload/video`;
+        const messageJson = JSON.stringify({ "chatId": chatId });
+
+        axios.post(destinationPath, formData, { headers: { "Content-Type": "multipart/form-data" } })
+                .then(response => {
+                  console.log("영상 업로드 성공", response.data);
+                  displayMessage("영상 업로드 성공");
+                  stompClient.send(destinationPath, {}, messageJson); // 메시지 전송
+                })
+                .catch(error => {
+                  console.error("영상 업로드 실패", error);
+                  displayMessage("영상 업로드 실패");
+                });
+      });
+
       // 메시지 전송 버튼 클릭 시
       $('#sendBtn').click(function () {
         const destinationPath = $('#destinationPath').val(); // 대상 경로 가져오기
@@ -116,10 +169,8 @@
   </div>
 
   <h2>SUBSCRIBE</h2>
+  <button id="addSubscriptionBtn" class="btn btn-secondary">ADD</button>
   <div id="subscriptionList"></div>
-  <div class="input-group mb-3">
-    <button id="addSubscriptionBtn" class="btn btn-secondary">ADD</button>
-  </div>
 
   <h2>SEND MESSAGE</h2>
   <div class="mb-3">
@@ -128,9 +179,27 @@
   </div>
   <div class="mb-3">
     <label for="message" class="form-label">MESSAGE(JSON):</label>
-    <textarea id="message" class="form-control" placeholder='{"targetUsername": "유저명", "message": "전송할 메시지", "sender": "발신자명"}'></textarea>
+    <textarea id="message" class="form-control" placeholder='{"userId": "user123", "chatId": 1}'></textarea>
   </div>
   <button id="sendBtn" class="btn btn-success">SEND</button>
+
+  <h2>UPLOAD PHOTO</h2>
+  <div class="mb-3">
+    <label for="chatId" class="form-label">Chat ID:</label>
+    <input type="text" id="chatId" class="form-control" placeholder="Enter Chat ID" />
+  </div>
+  <div class="mb-3">
+    <label for="photoFile" class="form-label">Choose Photo:</label>
+    <input type="file" id="photoFile" class="form-control"/>
+  </div>
+  <button id="uploadPhotoBtn" class="btn btn-info">Upload Photo</button>
+
+  <h2>UPLOAD VIDEO</h2>
+  <div class="mb-3">
+    <label for="videoFile" class="form-label">Choose Video:</label>
+    <input type="file" id="videoFile" class="form-control"/>
+  </div>
+  <button id="uploadVideoBtn" class="btn btn-info">Upload Video</button>
 
   <h2 class="mt-4">MESSAGES</h2>
   <div id="messageBox" class="border p-3" style="height: 200px; overflow-y: auto;"></div>

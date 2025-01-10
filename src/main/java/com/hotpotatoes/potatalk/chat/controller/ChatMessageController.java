@@ -4,14 +4,17 @@ import com.hotpotatoes.potatalk.chat.dto.ChatMessageDto;
 import com.hotpotatoes.potatalk.chat.service.ChatMediaService;
 import com.hotpotatoes.potatalk.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @Controller
-@RequestMapping("/api/chat")
 @RequiredArgsConstructor
 public class ChatMessageController {
 
@@ -44,17 +47,38 @@ public class ChatMessageController {
         messagingTemplate.convertAndSend("/topic/chat/delete", responseMessage);
     }
 
-    @PostMapping("/{chatId}/upload/photo")
-    public void uploadPhoto(@PathVariable("chatId") int chatId, @RequestBody MultipartFile file) {
-        String photoUrl = chatMediaService.savePhoto(chatId, file);
-        // 사진 업로드 후 WebSocket 알림 전송
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/photo", photoUrl);
+    @PostMapping("/api/chat/{chatId}/upload/photo")
+    public ResponseEntity<String> uploadPhoto(@PathVariable("chatId") int chatId, @RequestParam("file") MultipartFile file) {
+        try {
+            String photoUrl = chatMediaService.savePhoto(chatId, file);
+            // 사진 업로드 후 WebSocket 알림 전송
+            messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/photo", photoUrl);
+            return ResponseEntity.ok("사진이 성공적으로 전송되었습니다.");
+        } catch (IOException e) {
+            // 로깅
+            e.printStackTrace();
+
+            // 클라이언트에게 적절한 오류 메시지 반환
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("사진 전송에 실패하였습니다. : " + e.getMessage());
+        }
     }
 
-    @PostMapping("/{chatId}/upload/video")
-    public void uploadVideo(@PathVariable("chatId") int chatId, @RequestBody MultipartFile file) {
-        String videoUrl = chatMediaService.saveVideo(chatId, file);
-        // 영상 업로드 후 WebSocket 알림 전송
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/video", videoUrl);
+
+    @PostMapping("/api/chat/{chatId}/upload/video")
+    public ResponseEntity<String> uploadVideo(@PathVariable("chatId") int chatId, @RequestParam("file") MultipartFile file) {
+        try {
+            String videoUrl = chatMediaService.saveVideo(chatId, file);
+            // 영상 업로드 후 WebSocket 알림 전송
+            messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/video", videoUrl);
+            return ResponseEntity.ok("비디오가 성공적으로 전송되었습니다.");
+        } catch (IOException e) {
+            // 로깅
+            e.printStackTrace();
+
+            // 클라이언트에게 적절한 오류 메시지 반환
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("비디오 전송에 실패하였습니다. : " + e.getMessage());
+        }
     }
 }
