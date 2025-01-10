@@ -90,6 +90,21 @@
         $(this).hide(); // 구독 해제 버튼 숨김
       });
 
+      // 매칭 요청 버튼 클릭 시
+      $('#matchRequestBtn').click(function () {
+        const userId = $('#userId').val(); // userId 값을 가져옵니다
+        if (!userId) {
+          alert("사용자 ID를 입력해주세요!");
+          return;
+        }
+
+        // 매칭 요청 DESTINATION PATH와 MESSAGE (JSON)
+        const destinationPath = '/app/match';
+        const messageJson = JSON.stringify({ "userId": userId });
+
+        stompClient.send(destinationPath, {}, messageJson);
+      });
+
       // 사진 업로드 버튼 클릭 시
       $('#uploadPhotoBtn').click(function () {
         const chatId = $('#chatId').val(); // chatId 값을 가져옵니다
@@ -171,6 +186,15 @@
   <h2>SUBSCRIBE</h2>
   <button id="addSubscriptionBtn" class="btn btn-secondary">ADD</button>
   <div id="subscriptionList"></div>
+  <hr>
+
+  <h2>REQUEST MATCH</h2>
+  <div class="mb-3">
+    <label for="userId" class="form-label">User ID:</label>
+    <input type="text" id="userId" class="form-control" placeholder="Enter User ID" />
+  </div>
+  <button id="matchRequestBtn" class="btn btn-warning">Request Match</button>
+  <hr>
 
   <h2>SEND MESSAGE</h2>
   <div class="mb-3">
@@ -182,6 +206,7 @@
     <textarea id="message" class="form-control" placeholder='{"userId": "user123", "chatId": 1}'></textarea>
   </div>
   <button id="sendBtn" class="btn btn-success">SEND</button>
+  <hr>
 
   <h2>UPLOAD PHOTO</h2>
   <div class="mb-3">
@@ -193,6 +218,7 @@
     <input type="file" id="photoFile" class="form-control"/>
   </div>
   <button id="uploadPhotoBtn" class="btn btn-info">Upload Photo</button>
+  <hr>
 
   <h2>UPLOAD VIDEO</h2>
   <div class="mb-3">
@@ -200,6 +226,7 @@
     <input type="file" id="videoFile" class="form-control"/>
   </div>
   <button id="uploadVideoBtn" class="btn btn-info">Upload Video</button>
+  <hr>
 
   <h2 class="mt-4">MESSAGES</h2>
   <div id="messageBox" class="border p-3" style="height: 200px; overflow-y: auto;"></div>
