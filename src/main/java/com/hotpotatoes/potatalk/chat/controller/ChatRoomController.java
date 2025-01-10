@@ -16,6 +16,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/api/chat")
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
@@ -29,13 +30,13 @@ public class ChatRoomController {
         messagingTemplate.convertAndSend("/topic/chat/create/" + userId, chatRoom);
     }
 
-    @GetMapping("/api/chat")
+    @GetMapping
     public ResponseEntity<List<ChatRoom>> getAllChatRooms() {
         List<ChatRoom> chatRooms = chatRoomService.getAllChatRooms();
         return ResponseEntity.ok(chatRooms);
     }
 
-    @GetMapping("/api/chat/{chatId}/status")
+    @GetMapping("/{chatId}/status")
     public ChatRoomStatus getChatRoomStatus(@PathVariable("chatId") int chatId) {
         return chatRoomService.getChatRoomStatus(chatId);
     }

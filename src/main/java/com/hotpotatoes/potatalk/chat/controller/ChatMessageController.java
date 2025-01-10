@@ -17,6 +17,7 @@ import java.io.IOException;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/api/chat")
 public class ChatMessageController {
 
     private final SimpMessagingTemplate messagingTemplate;
@@ -53,7 +54,7 @@ public class ChatMessageController {
         messagingTemplate.convertAndSend("/topic/chat/delete", responseMessage);
     }
 
-    @PostMapping("/api/chat/{chatId}/upload/photo")
+    @PostMapping("/{chatId}/upload/photo")
     public ResponseEntity<String> uploadPhoto(@PathVariable("chatId") int chatId, @RequestParam("file") MultipartFile file) {
         try {
             String photoUrl = chatMediaService.savePhoto(chatId, file);
@@ -70,7 +71,7 @@ public class ChatMessageController {
         }
     }
 
-    @PostMapping("/api/chat/{chatId}/upload/video")
+    @PostMapping("/{chatId}/upload/video")
     public ResponseEntity<String> uploadVideo(@PathVariable("chatId") int chatId, @RequestParam("file") MultipartFile file) {
         try {
             String videoUrl = chatMediaService.saveVideo(chatId, file);
@@ -87,7 +88,7 @@ public class ChatMessageController {
         }
     }
 
-    @GetMapping("/api/chat/{chatId}/unread/messages/count")
+    @GetMapping("/{chatId}/unread/messages/count")
     public ResponseEntity<Long> getUnreadMessageCount(@PathVariable("chatId") int chatId) {
         try {
             long unreadCount = chatMessageService.getUnreadMessageCount(chatId);
