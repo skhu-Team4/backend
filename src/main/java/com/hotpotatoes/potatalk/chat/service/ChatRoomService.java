@@ -6,6 +6,8 @@ import com.hotpotatoes.potatalk.chat.domain.ChatRoom;
 import com.hotpotatoes.potatalk.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +40,7 @@ public class ChatRoomService {
         return chatRoom.get().getStatus();
     }
 
+    @Transactional
     public void updateChatRoomStatus(int chatId, boolean accepted) {
         Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatId);
         if (chatRoomOptional.isEmpty()) {
@@ -55,6 +58,7 @@ public class ChatRoomService {
         chatRoomRepository.save(chatRoom);
     }
 
+    @Transactional
     public String connectToChatRoom(int chatId, String userId) {
         Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatId);
 
@@ -81,6 +85,7 @@ public class ChatRoomService {
         return "사용자 " + userId + "가 채팅방 " + chatId + "에 연결되었습니다.";
     }
 
+    @Transactional
     public String disconnectFromChatRoom(int chatId, String userId) {
         // 채팅방 조회
         Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatId);

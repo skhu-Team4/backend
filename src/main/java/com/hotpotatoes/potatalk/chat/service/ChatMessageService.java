@@ -8,6 +8,8 @@ import com.hotpotatoes.potatalk.chat.repository.ChatMessageRepository;
 import com.hotpotatoes.potatalk.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +21,7 @@ public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
 
+    @Transactional
     public void saveMessage(int chatId, ChatMessageDto messageDto) {
         Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatId);
 
@@ -37,12 +40,14 @@ public class ChatMessageService {
         chatMessageRepository.save(chatMessage);
     }
 
+    @Transactional
     public void deleteMessage(int messageId) {
         ChatMessage chatMessage = chatMessageRepository.findById(messageId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 메시지가 존재하지 않습니다. id : " + messageId));
         chatMessageRepository.delete(chatMessage);
     }
 
+    @Transactional
     public void readMessage(int chatId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채팅방이 존재하지 않습니다. id : " + chatId));

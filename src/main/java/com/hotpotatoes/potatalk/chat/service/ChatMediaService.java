@@ -8,6 +8,7 @@ import com.hotpotatoes.potatalk.chat.repository.ChatRoomRepository;
 import com.hotpotatoes.potatalk.chat.repository.ChatVideoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -23,6 +24,7 @@ public class ChatMediaService {
     private final ChatPhotoRepository chatPhotoRepository;
     private final ChatVideoRepository chatVideoRepository;
 
+    @Transactional
     public String savePhoto(int chatId, MultipartFile file) {
         Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatId);
         if (chatRoomOptional.isEmpty()) {
@@ -50,6 +52,7 @@ public class ChatMediaService {
         return chatPhoto.getPhoto_url();
     }
 
+    @Transactional
     public String saveVideo(int chatId, MultipartFile file) {
         Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatId);
         if (chatRoomOptional.isEmpty()) {
