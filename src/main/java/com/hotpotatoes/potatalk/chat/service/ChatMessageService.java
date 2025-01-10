@@ -63,4 +63,16 @@ public class ChatMessageService {
             });
         }
     }
+
+    @Transactional
+    public long getUnreadMessageCount(int chatId) {
+        Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatId);
+        if (chatRoomOptional.isEmpty()) {
+            throw new IllegalArgumentException("채팅방이 존재하지 않습니다.");
+        }
+
+        ChatRoom chatRoom = chatRoomOptional.get();
+        // 읽지 않은 메시지 개수 반환
+        return chatMessageRepository.countByChatRoomAndIsReadFalse(chatRoom);
+    }
 }

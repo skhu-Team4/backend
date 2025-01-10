@@ -70,7 +70,6 @@ public class ChatMessageController {
         }
     }
 
-
     @PostMapping("/api/chat/{chatId}/upload/video")
     public ResponseEntity<String> uploadVideo(@PathVariable("chatId") int chatId, @RequestParam("file") MultipartFile file) {
         try {
@@ -85,6 +84,16 @@ public class ChatMessageController {
             // 클라이언트에게 적절한 오류 메시지 반환
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("비디오 전송에 실패하였습니다. : " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/api/chat/{chatId}/unread/messages/count")
+    public ResponseEntity<Long> getUnreadMessageCount(@PathVariable("chatId") int chatId) {
+        try {
+            long unreadCount = chatMessageService.getUnreadMessageCount(chatId);
+            return ResponseEntity.ok(unreadCount);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(0L);
         }
     }
 }
