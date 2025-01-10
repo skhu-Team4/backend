@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("/api/chat")
 @RequiredArgsConstructor
 public class ChatRoomController {
 
@@ -29,13 +28,13 @@ public class ChatRoomController {
         messagingTemplate.convertAndSend("/topic/chat/create/" + userId, chatRoom);
     }
 
-    @GetMapping
+    @GetMapping("/api/chat")
     public ResponseEntity<List<ChatRoom>> getAllChatRooms() {
         List<ChatRoom> chatRooms = chatRoomService.getAllChatRooms();
         return ResponseEntity.ok(chatRooms);
     }
 
-    @GetMapping("/{chatId}/status")
+    @GetMapping("/api/chat/{chatId}/status")
     public ChatRoomStatus getChatRoomStatus(@PathVariable("chatId") int chatId) {
         return chatRoomService.getChatRoomStatus(chatId);
     }
