@@ -1,6 +1,8 @@
 package com.hotpotatoes.potatalk.chat.controller;
 
 import com.hotpotatoes.potatalk.chat.dto.ChatMessageDto;
+import com.hotpotatoes.potatalk.chat.dto.MarkMessagesAsReadDto;
+import com.hotpotatoes.potatalk.chat.dto.MessageDeleteDto;
 import com.hotpotatoes.potatalk.chat.service.ChatMediaService;
 import com.hotpotatoes.potatalk.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +13,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 
 @Controller
@@ -31,16 +32,21 @@ public class ChatMessageController {
     }
 
     @MessageMapping("/messages/read")
-    public void markMessagesAsRead(int chatId) {
+    public void markMessagesAsRead(MarkMessagesAsReadDto markMessagesAsReadDto) {
+        int chatId = markMessagesAsReadDto.getChatId();
+
         chatMessageService.readMessage(chatId);
 
         // 메시지가 읽음 처리된 이벤트를 클라이언트로 전송
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/read", "메시지가 읽음 처리되었습니다.");
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/read", "채팅방 " + chatId + "의 모든 메시지가 읽음 처리되었습니다.");
     }
 
+
     @MessageMapping("/message/delete")
-    public void deleteChatMessage(int messageId) {
-        chatMessageService.deleteMessage(messageId);
+    public void deleteChatMessage(MessageDeleteDto deleteDto) {
+        int messageId = deleteDto.getMessageId();  // deleteDto를 통해 messageId를 받음
+
+        chatMessageService.deleteMessage(messageId);  // 메시지 삭제
 
         // 삭제된 메시지 정보를 클라이언트로 전송
         String responseMessage = "메시지 " + messageId + "가 삭제되었습니다.";
