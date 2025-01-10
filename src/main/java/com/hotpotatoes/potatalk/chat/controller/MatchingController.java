@@ -5,7 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -18,13 +19,15 @@ public class MatchingController {
     public void handleMatchRequest(String userId) {
         String key = "default"; // 매칭 옵션에 따른 키 (예: "2:옵션A,옵션B")
 
-        // 대기열에서 랜덤 사용자 가져오기
-        String matchedUser = matchingService.getRandomUserFromWaitingList(key);
+        // 대기열에서 두 명의 랜덤 사용자 가져오기
+        List<String> matchedUsers = matchingService.getRandomUsersFromWaitingList(key);
 
-        if (matchedUser != null) {
+        if (matchedUsers != null && matchedUsers.size() == 2) {
             // 매칭 성공
-            messagingTemplate.convertAndSend("/topic/match/" + matchedUser, "매칭 성공: " + userId);
-            messagingTemplate.convertAndSend("/topic/match/" + userId, "매칭 성공: " + matchedUser);
+            String user1 = matchedUsers.get(0);
+            String user2 = matchedUsers.get(1);
+            messagingTemplate.convertAndSend("/topic/match/" + user1, "매칭 성공: " + user2);
+            messagingTemplate.convertAndSend("/topic/match/" + user2, "매칭 성공: " + user1);
         } else {
             // 대기열에 본인 등록
             matchingService.addUserToWaitingList(key, userId);
