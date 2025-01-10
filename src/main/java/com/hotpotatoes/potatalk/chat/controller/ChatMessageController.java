@@ -1,10 +1,12 @@
 package com.hotpotatoes.potatalk.chat.controller;
 
+import com.hotpotatoes.potatalk.chat.domain.NotificationSettings;
 import com.hotpotatoes.potatalk.chat.dto.ChatMessageDto;
 import com.hotpotatoes.potatalk.chat.dto.MarkMessagesAsReadDto;
 import com.hotpotatoes.potatalk.chat.dto.MessageDeleteDto;
 import com.hotpotatoes.potatalk.chat.service.ChatMediaService;
 import com.hotpotatoes.potatalk.chat.service.ChatMessageService;
+import com.hotpotatoes.potatalk.chat.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ public class ChatMessageController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageService chatMessageService;
     private final ChatMediaService chatMediaService;
+    private final NotificationService notificationService;
 
     @MessageMapping("/{chatId}/messages")
     public void handleChatMessage(ChatMessageDto message) {
@@ -30,6 +33,14 @@ public class ChatMessageController {
 
         // WebSocket으로 메시지 전송
         messagingTemplate.convertAndSend("/topic/chat/" + message.getChatId(), message);
+
+        // 메시지 알림을 보내기 전에 사용자 알림 설정 확인
+        NotificationSettings userSettings = notificationService.getNotificationSettings(message.getSender());
+
+        if (userSettings != null && userSettings.isMessageNotificationEnabled()) {
+            // 알림 저장 (Redis에)
+            notificationService.saveNotification(message.getSender(), "새 메시지가 도착했습니다.");
+        }
     }
 
     @MessageMapping("/messages/read")
