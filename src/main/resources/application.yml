@@ -1,6 +1,10 @@
 spring:
   application:
     name: Potatalk
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
 
   datasource:
     url: ${DB_JDBC_URL}
