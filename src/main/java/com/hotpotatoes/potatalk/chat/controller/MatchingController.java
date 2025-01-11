@@ -1,6 +1,8 @@
 package com.hotpotatoes.potatalk.chat.controller;
 
 import com.hotpotatoes.potatalk.chat.domain.NotificationSettings;
+import com.hotpotatoes.potatalk.chat.dto.MatchAcceptRequestDto;
+import com.hotpotatoes.potatalk.chat.dto.MatchRequestDto;
 import com.hotpotatoes.potatalk.chat.service.MatchingService;
 import com.hotpotatoes.potatalk.chat.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -17,64 +19,64 @@ public class MatchingController {
     private final NotificationService notificationService;
 
     @MessageMapping("/match")
-    public void handleMatchRequest(String userId) {
+    public void handleMatchRequest(MatchRequestDto RequestDto) {
         String key = "default"; // 매칭 옵션에 따른 키
 
         String matchedUser = matchingService.getRandomUserFromWaitingList(key);
 
         if (matchedUser != null) {
-            NotificationSettings userSettings = notificationService.getNotificationSettings(userId);
+            NotificationSettings userSettings = notificationService.getNotificationSettings(RequestDto.getUserId());
             NotificationSettings matchedUserSettings = notificationService.getNotificationSettings(matchedUser);
 
-            messagingTemplate.convertAndSend("/topic/match/" + userId, "매칭 성공: " + matchedUser);
-            messagingTemplate.convertAndSend("/topic/match/" + matchedUser, "매칭 성공: " + userId);
+            messagingTemplate.convertAndSend("/topic/match/" + RequestDto.getUserId(), "매칭 성공: " + matchedUser);
+            messagingTemplate.convertAndSend("/topic/match/" + matchedUser, "매칭 성공: " + RequestDto.getUserId());
 
             if (userSettings.isMatchNotificationEnabled()) {
-                notificationService.saveNotification(userId, "매칭에 성공하였습니다.");
+                notificationService.saveNotification(RequestDto.getUserId(), "매칭에 성공하였습니다.");
             }
 
             if (matchedUserSettings.isMatchNotificationEnabled()) {
-                notificationService.saveNotification(userId, "매칭에 성공하였습니다.");
+                notificationService.saveNotification(matchedUser, "매칭에 성공하였습니다.");
             }
         } else {
-            matchingService.addUserToWaitingList(key, userId);
+            matchingService.addUserToWaitingList(key, RequestDto.getUserId());
 
-            messagingTemplate.convertAndSend("/topic/match/" + userId, "대기열에 등록되었습니다.");
+            messagingTemplate.convertAndSend("/topic/match/" + RequestDto.getUserId(), "대기열에 등록되었습니다.");
 
-            NotificationSettings userSettings = notificationService.getNotificationSettings(userId);
+            NotificationSettings userSettings = notificationService.getNotificationSettings(RequestDto.getUserId());
             if (userSettings.isWaitingQueueNotificationEnabled()) {
-                notificationService.saveNotification(userId, "대기열에 등록되었습니다.");
+                notificationService.saveNotification(RequestDto.getUserId(), "대기열에 등록되었습니다.");
             }
         }
     }
 
     @MessageMapping("/match/accept")
-    public void acceptMatch(String userId, String matchedUser) {
-        matchingService.acceptMatch(userId, matchedUser);
+    public void acceptMatch(MatchAcceptRequestDto requestDto) {
+        matchingService.acceptMatch(requestDto.getUserId(), requestDto.getMatchedUser());
 
-        messagingTemplate.convertAndSend("/topic/match/" + userId, "매칭을 수락하였습니다.");
-        messagingTemplate.convertAndSend("/topic/match/" + matchedUser, "매칭을 수락하였습니다.");
+        messagingTemplate.convertAndSend("/topic/match/" + requestDto.getUserId(), "매칭을 수락하였습니다.");
+        messagingTemplate.convertAndSend("/topic/match/" + requestDto.getMatchedUser(), "매칭을 수락하였습니다.");
 
-        NotificationSettings userSettings = notificationService.getNotificationSettings(userId);
+        NotificationSettings userSettings = notificationService.getNotificationSettings(requestDto.getUserId());
         if (userSettings.isWaitingQueueNotificationEnabled()) {
-            notificationService.saveNotification(userId, "매칭을 수락하였습니다.");
+            notificationService.saveNotification(requestDto.getUserId(), "매칭을 수락하였습니다.");
         }
 
-        NotificationSettings matchedUserSettings = notificationService.getNotificationSettings(matchedUser);
+        NotificationSettings matchedUserSettings = notificationService.getNotificationSettings(requestDto.getMatchedUser());
         if (matchedUserSettings.isWaitingQueueNotificationEnabled()) {
-            notificationService.saveNotification(matchedUser, "매칭을 수락하였습니다.");
+            notificationService.saveNotification(requestDto.getMatchedUser(), "매칭을 수락하였습니다.");
         }
     }
 
     @MessageMapping("/match/reject")
-    public void rejectMatch(String userId) {
-        matchingService.rejectMatch(userId);
+    public void rejectMatch(MatchRequestDto matchRequestDto) {
+        matchingService.rejectMatch(matchRequestDto.getUserId());
 
-        messagingTemplate.convertAndSend("/topic/match/" + userId, "매칭을 거절하였습니다. 대기열에 다시 등록되었습니다.");
+        messagingTemplate.convertAndSend("/topic/match/" + matchRequestDto.getUserId(), "매칭을 거절하였습니다. 대기열에 다시 등록되었습니다.");
 
-        NotificationSettings userSettings = notificationService.getNotificationSettings(userId);
+        NotificationSettings userSettings = notificationService.getNotificationSettings(matchRequestDto.getUserId());
         if (userSettings.isWaitingQueueNotificationEnabled()) {
-            notificationService.saveNotification(userId, "매칭을 거절하였습니다. 대기열에 다시 등록되었습니다.");
+            notificationService.saveNotification(matchRequestDto.getUserId(), "매칭을 거절하였습니다. 대기열에 다시 등록되었습니다.");
         }
     }
 }
