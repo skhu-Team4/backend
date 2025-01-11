@@ -41,7 +41,7 @@ public class ChatMessageService {
     @Transactional
     public void deleteMessage(int messageId) {
         ChatMessage chatMessage = chatMessageRepository.findById(messageId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 메시지가 존재하지 않습니다. id : " + messageId));
+                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방이 존재하지 않습니다. id : " + messageId));
         chatMessageRepository.delete(chatMessage);
     }
 

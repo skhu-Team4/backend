@@ -24,21 +24,26 @@ public class MatchingController {
 
         if (matchedUser != null) {
             NotificationSettings userSettings = notificationService.getNotificationSettings(userId);
+            NotificationSettings matchedUserSettings = notificationService.getNotificationSettings(matchedUser);
+
+            messagingTemplate.convertAndSend("/topic/match/" + userId, "매칭 성공: " + matchedUser);
+            messagingTemplate.convertAndSend("/topic/match/" + matchedUser, "매칭 성공: " + userId);
+
             if (userSettings.isMatchNotificationEnabled()) {
-                messagingTemplate.convertAndSend("/topic/match/" + userId, "매칭 성공: " + matchedUser);
+                notificationService.saveNotification(userId, "매칭에 성공하였습니다.");
             }
 
-            NotificationSettings matchedUserSettings = notificationService.getNotificationSettings(matchedUser);
             if (matchedUserSettings.isMatchNotificationEnabled()) {
-                messagingTemplate.convertAndSend("/topic/match/" + matchedUser, "매칭 성공: " + userId);
+                notificationService.saveNotification(userId, "매칭에 성공하였습니다.");
             }
         } else {
             matchingService.addUserToWaitingList(key, userId);
 
-            NotificationSettings userSettings = notificationService.getNotificationSettings(userId);
+            messagingTemplate.convertAndSend("/topic/match/" + userId, "대기열에 등록되었습니다.");
 
+            NotificationSettings userSettings = notificationService.getNotificationSettings(userId);
             if (userSettings.isWaitingQueueNotificationEnabled()) {
-                messagingTemplate.convertAndSend("/topic/match/" + userId, "대기열에 등록되었습니다.");
+                notificationService.saveNotification(userId, "대기열에 등록되었습니다.");
             }
         }
     }
@@ -49,6 +54,16 @@ public class MatchingController {
 
         messagingTemplate.convertAndSend("/topic/match/" + userId, "매칭을 수락하였습니다.");
         messagingTemplate.convertAndSend("/topic/match/" + matchedUser, "매칭을 수락하였습니다.");
+
+        NotificationSettings userSettings = notificationService.getNotificationSettings(userId);
+        if (userSettings.isWaitingQueueNotificationEnabled()) {
+            notificationService.saveNotification(userId, "매칭을 수락하였습니다.");
+        }
+
+        NotificationSettings matchedUserSettings = notificationService.getNotificationSettings(matchedUser);
+        if (matchedUserSettings.isWaitingQueueNotificationEnabled()) {
+            notificationService.saveNotification(matchedUser, "매칭을 수락하였습니다.");
+        }
     }
 
     @MessageMapping("/match/reject")
@@ -56,5 +71,10 @@ public class MatchingController {
         matchingService.rejectMatch(userId);
 
         messagingTemplate.convertAndSend("/topic/match/" + userId, "매칭을 거절하였습니다. 대기열에 다시 등록되었습니다.");
+
+        NotificationSettings userSettings = notificationService.getNotificationSettings(userId);
+        if (userSettings.isWaitingQueueNotificationEnabled()) {
+            notificationService.saveNotification(userId, "매칭을 거절하였습니다. 대기열에 다시 등록되었습니다.");
+        }
     }
 }

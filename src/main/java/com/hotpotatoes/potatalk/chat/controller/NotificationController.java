@@ -3,8 +3,11 @@ package com.hotpotatoes.potatalk.chat.controller;
 import com.hotpotatoes.potatalk.chat.domain.NotificationSettings;
 import com.hotpotatoes.potatalk.chat.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -26,7 +29,11 @@ public class NotificationController {
     }
 
     @GetMapping("/{userId}")
-    public List<String> getAllNotifications(@PathVariable String userId) {
-        return notificationService.getAllNotifications(userId);
+    public ResponseEntity<List<String>> getAllNotificationsByUserId(@PathVariable("userId") String userId) {
+        List<String> notifications = notificationService.getAllNotifications(userId);
+        if (notifications.isEmpty()) {
+            return ResponseEntity.ok(notifications);
+        }
+        return ResponseEntity.ok(notifications);
     }
 }
