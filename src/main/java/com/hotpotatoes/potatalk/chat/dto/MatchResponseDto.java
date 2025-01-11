@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MatchResponseDto {
-    private boolean accepted; // true: 수락, false: 거절
+    private boolean accepted;
 }

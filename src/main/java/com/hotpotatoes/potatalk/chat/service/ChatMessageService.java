@@ -9,7 +9,6 @@ import com.hotpotatoes.potatalk.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +30,6 @@ public class ChatMessageService {
 
         ChatRoom chatRoom = chatRoomOptional.get();
 
-        // 메시지 저장
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setMessageContent(messageDto.getContent());
         chatMessage.setCreatedAt(LocalDateTime.now());
@@ -72,7 +70,7 @@ public class ChatMessageService {
         }
 
         ChatRoom chatRoom = chatRoomOptional.get();
-        // 읽지 않은 메시지 개수 반환
+
         return chatMessageRepository.countByChatRoomAndIsReadFalse(chatRoom);
     }
 }

@@ -88,7 +88,6 @@ public class ChatRoomService {
 
     @Transactional
     public String disconnectFromChatRoom(int chatId, String userId) {
-        // 채팅방 조회
         Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatId);
 
         if (chatRoomOptional.isEmpty()) {
@@ -100,14 +99,12 @@ public class ChatRoomService {
         // Lazy 로딩을 피하기 위해 명시적으로 connectedUsers를 초기화
         chatRoom.getConnectedUsers().size(); // EAGER 로딩된 상태이므로, size() 호출로 초기화
 
-        // 연결된 사용자 리스트에서 사용자 제거
         if (!chatRoom.getConnectedUsers().contains(userId)) {
             return "사용자 " + userId + "는 이 채팅방에 연결되어 있지 않습니다.";
         }
 
         chatRoom.getConnectedUsers().remove(userId);
 
-        // 연결된 사용자가 없으면 채팅방 상태를 WAITING으로 변경
         if (chatRoom.getConnectedUsers().isEmpty() && chatRoom.getStatus() != ChatRoomStatus.WAITING) {
             chatRoom.setStatus(ChatRoomStatus.WAITING);
         }

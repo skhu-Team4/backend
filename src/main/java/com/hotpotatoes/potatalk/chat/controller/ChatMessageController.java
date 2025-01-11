@@ -31,14 +31,11 @@ public class ChatMessageController {
     public void handleChatMessage(ChatMessageDto message) {
         chatMessageService.saveMessage(message.getChatId(), message);
 
-        // WebSocket으로 메시지 전송
         messagingTemplate.convertAndSend("/topic/chat/" + message.getChatId(), message);
 
-        // 메시지 알림을 보내기 전에 사용자 알림 설정 확인
         NotificationSettings userSettings = notificationService.getNotificationSettings(message.getSender());
 
         if (userSettings != null && userSettings.isMessageNotificationEnabled()) {
-            // 알림 저장 (Redis에)
             notificationService.saveNotification(message.getSender(), "새 메시지가 도착했습니다.");
         }
     }
@@ -49,18 +46,16 @@ public class ChatMessageController {
 
         chatMessageService.readMessage(chatId);
 
-        // 메시지가 읽음 처리된 이벤트를 클라이언트로 전송
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/read", "채팅방 " + chatId + "의 모든 메시지가 읽음 처리되었습니다.");
     }
 
 
     @MessageMapping("/message/delete")
     public void deleteChatMessage(MessageDeleteDto deleteDto) {
-        int messageId = deleteDto.getMessageId();  // deleteDto를 통해 messageId를 받음
+        int messageId = deleteDto.getMessageId();
 
-        chatMessageService.deleteMessage(messageId);  // 메시지 삭제
+        chatMessageService.deleteMessage(messageId);
 
-        // 삭제된 메시지 정보를 클라이언트로 전송
         String responseMessage = "메시지 " + messageId + "가 삭제되었습니다.";
         messagingTemplate.convertAndSend("/topic/chat/delete", responseMessage);
     }
@@ -69,14 +64,10 @@ public class ChatMessageController {
     public ResponseEntity<String> uploadPhoto(@PathVariable("chatId") int chatId, @RequestParam("file") MultipartFile file) {
         try {
             String photoUrl = chatMediaService.savePhoto(chatId, file);
-            // 사진 업로드 후 WebSocket 알림 전송
+
             messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/photo", photoUrl);
             return ResponseEntity.ok("사진이 성공적으로 전송되었습니다.");
         } catch (IOException e) {
-            // 로깅
-            e.printStackTrace();
-
-            // 클라이언트에게 적절한 오류 메시지 반환
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("사진 전송에 실패하였습니다. : " + e.getMessage());
         }
@@ -86,14 +77,10 @@ public class ChatMessageController {
     public ResponseEntity<String> uploadVideo(@PathVariable("chatId") int chatId, @RequestParam("file") MultipartFile file) {
         try {
             String videoUrl = chatMediaService.saveVideo(chatId, file);
-            // 영상 업로드 후 WebSocket 알림 전송
+
             messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/video", videoUrl);
             return ResponseEntity.ok("비디오가 성공적으로 전송되었습니다.");
         } catch (IOException e) {
-            // 로깅
-            e.printStackTrace();
-
-            // 클라이언트에게 적절한 오류 메시지 반환
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("비디오 전송에 실패하였습니다. : " + e.getMessage());
         }

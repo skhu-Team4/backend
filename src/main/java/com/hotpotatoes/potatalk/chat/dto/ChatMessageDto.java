@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChatMessageDto {
-    private int chatId;       // 채팅방 ID
-    private String sender;    // 메시지 발신자
-    private String content;   // 메시지 내용
+    private int chatId;
+    private String sender;
+    private String content;
 }

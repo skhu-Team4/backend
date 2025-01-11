@@ -25,8 +25,6 @@ public class ChatRoomController {
     @MessageMapping("/create")
     public void createChatRoom(String userId) {
         ChatRoomResponseDto chatRoom = chatRoomService.createChatRoom();
-
-        // 클라이언트로 생성된 채팅방 정보 전송
         messagingTemplate.convertAndSend("/topic/chat/create/" + userId, chatRoom);
     }
 
@@ -45,7 +43,6 @@ public class ChatRoomController {
     public void updateChatRoomStatus(ChatRoomStatusUpdateDto statusUpdateDto) {
         chatRoomService.updateChatRoomStatus(statusUpdateDto.getChatId(), statusUpdateDto.isAccepted());
 
-        // 채팅방 상태 변경 알림 전송
         messagingTemplate.convertAndSend("/topic/chat/" + statusUpdateDto.getChatId() + "/status",
                 statusUpdateDto.isAccepted() ? "채팅방 상태가 '채팅 중'으로 변경되었습니다." : "채팅방 상태가 '대기 중'으로 변경되었습니다.");
     }
@@ -54,10 +51,8 @@ public class ChatRoomController {
     public void connectToChatRoom(ChatRoomConnectRequestDto connectRequestDto) {
         String response = chatRoomService.connectToChatRoom(connectRequestDto.getChatId(), connectRequestDto.getUserId());
 
-        // 연결 상태를 클라이언트로 전송
         String message = "사용자 " + connectRequestDto.getUserId() + "가 채팅방 " + connectRequestDto.getChatId() + "에 연결되었습니다.";
 
-        // 연결 상태를 클라이언트에게 전송
         messagingTemplate.convertAndSend("/topic/chat/connect/" + connectRequestDto.getChatId(), message);
     }
 
@@ -65,7 +60,6 @@ public class ChatRoomController {
     public void disconnectFromChatRoom(ChatRoomConnectRequestDto connectRequestDto) {
         String response = chatRoomService.disconnectFromChatRoom(connectRequestDto.getChatId(), connectRequestDto.getUserId());
 
-        // 연결 종료 상태 WebSocket으로 전송
         messagingTemplate.convertAndSend("/topic/chat/disconnect/" + connectRequestDto.getChatId(), response);
     }
 
