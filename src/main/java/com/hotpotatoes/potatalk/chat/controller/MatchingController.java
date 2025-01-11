@@ -8,8 +8,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import java.util.List;
-
 @Controller
 @RequiredArgsConstructor
 public class MatchingController {
@@ -22,31 +20,25 @@ public class MatchingController {
     public void handleMatchRequest(String userId) {
         String key = "default"; // 매칭 옵션에 따른 키 (예: "2:옵션A,옵션B")
 
-        // 대기열에서 두 명의 랜덤 사용자 가져오기
-        List<String> matchedUsers = matchingService.getRandomUsersFromWaitingList(key);
+        // 대기열에서 1명 이상의 랜덤 사용자 가져오기 (자기 자신을 제외한 대기열에서 한 명을 가져옵니다)
+        String matchedUser = matchingService.getRandomUserFromWaitingList(key);
 
-        if (matchedUsers != null && matchedUsers.size() == 2) {
+        if (matchedUser != null) {
             // 매칭 성공
-            String user1 = matchedUsers.get(0);
-            String user2 = matchedUsers.get(1);
-
-            // 매칭 성공 알림을 보내기 전에 사용자 알림 설정 확인
-            NotificationSettings user1Settings = notificationService.getNotificationSettings(user1);
-            NotificationSettings user2Settings = notificationService.getNotificationSettings(user2);
-
-            if (user1Settings.isMatchNotificationEnabled()) {
-                messagingTemplate.convertAndSend("/topic/match/" + user1, "매칭 성공: " + user2);
+            NotificationSettings userSettings = notificationService.getNotificationSettings(userId);
+            if (userSettings.isMatchNotificationEnabled()) {
+                messagingTemplate.convertAndSend("/topic/match/" + userId, "매칭 성공: " + matchedUser);
             }
 
-            if (user2Settings.isMatchNotificationEnabled()) {
-                messagingTemplate.convertAndSend("/topic/match/" + user2, "매칭 성공: " + user1);
+            NotificationSettings matchedUserSettings = notificationService.getNotificationSettings(matchedUser);
+            if (matchedUserSettings.isMatchNotificationEnabled()) {
+                messagingTemplate.convertAndSend("/topic/match/" + matchedUser, "매칭 성공: " + userId);
             }
-
         } else {
             // 대기열에 본인 등록
             matchingService.addUserToWaitingList(key, userId);
 
-            // 이미 대기열에 등록된 경우 알림 전송
+            // 대기열에 등록된 사용자에게 알림 전송
             NotificationSettings userSettings = notificationService.getNotificationSettings(userId);
 
             if (userSettings.isWaitingQueueNotificationEnabled()) {

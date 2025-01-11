@@ -3,8 +3,7 @@ package com.hotpotatoes.potatalk.chat.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -22,43 +21,37 @@ public class MatchingService {
         redisTemplate.opsForZSet().add(WAITING_LIST_PREFIX + key, userId, randomScore);
     }
 
-    // 랜덤으로 사용자 가져오기 (매칭 시)
-    public List<String> getRandomUsersFromWaitingList(String key) {
+    // 대기열에서 한 명의 사용자 가져오기
+    public String getRandomUserFromWaitingList(String key) {
         String redisKey = WAITING_LIST_PREFIX + key;
 
-        // ZRANDMEMBER 호출 (결과를 List로 받음)
-        List<String> randomUsers = redisTemplate.opsForZSet().randomMembers(redisKey, 2);
+        // 대기열에서 1명을 가져옴 (대기열에 사용자가 없으면 null 반환)
+        Set<String> matchedUsers = redisTemplate.opsForZSet().range(redisKey, 0, 0);  // 한 명만 가져옴
 
-        if (randomUsers == null || randomUsers.size() < 2) {
-            return null; // 대기열에 2명 미만이 있을 경우 매칭 불가
+        if (matchedUsers == null || matchedUsers.isEmpty()) {
+            return null;  // 대기열에 사용자가 없으면 null 반환
         }
 
+        // 첫 번째 사용자 가져오기
+        String selectedUser = matchedUsers.iterator().next(); // Set에서 첫 번째 요소 가져오기
+
         // 매칭 성공 시 Redis 대기열에서 제거
-        redisTemplate.opsForZSet().remove(redisKey, randomUsers.get(0), randomUsers.get(1));
+        redisTemplate.opsForZSet().remove(redisKey, selectedUser);
 
-        // 매칭된 사용자 목록에 추가
-        redisTemplate.opsForSet().add(MATCHED_LIST_PREFIX + key, randomUsers.get(0), randomUsers.get(1));
-
-        return randomUsers;
+        return selectedUser;
     }
 
     // 매칭 수락
-    public void acceptMatch(String user1, String user2) {
-        // 매칭 완료 처리
-        completeMatch(user1, user2);
-
-        // 매칭 수락 후 알림
-        notifyMatchCompletion(user1, user2);
-        notifyMatchCompletion(user2, user1);
+    public void acceptMatch(String userId, String matchedUser) {
+        // 매칭된 사용자 처리 로직 (예: 두 사람을 매칭된 상태로 저장)
+        String matchKey = "matched:" + userId + ":" + matchedUser;
+        redisTemplate.opsForValue().set(matchKey, "MATCHED");
     }
 
     // 매칭 거절
     public void rejectMatch(String userId) {
-        // 거절한 사용자를 대기열에 다시 등록
-        addUserToWaitingList("default", userId);
-
-        // 거절 알림
-        notifyMatchRejection(userId);
+        // 대기열에 다시 사용자 추가
+        addUserToWaitingList("default", userId); // "default"는 대기열의 키
     }
 
     // 매칭 완료 후 사용자 처리
