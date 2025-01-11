@@ -1,4 +1,4 @@
-package com.hotpotatoes.potatalk.chat.dto;
+package com.hotpotatoes.potatalk.chat.dto.chat.res;
 
 import com.hotpotatoes.potatalk.chat.domain.ChatRoomStatus;
 import lombok.AllArgsConstructor;

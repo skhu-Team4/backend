@@ -1,4 +1,4 @@
-package com.hotpotatoes.potatalk.chat.dto;
+package com.hotpotatoes.potatalk.chat.dto.chat.req;
 
 import lombok.Getter;
 import lombok.Setter;

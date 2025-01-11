@@ -1,10 +1,10 @@
 package com.hotpotatoes.potatalk.chat.controller;
 
 import com.hotpotatoes.potatalk.chat.domain.ChatRoomStatus;
-import com.hotpotatoes.potatalk.chat.dto.ChatRoomConnectRequestDto;
-import com.hotpotatoes.potatalk.chat.dto.ChatRoomResponseDto;
+import com.hotpotatoes.potatalk.chat.dto.chat.req.ChatRoomConnectRequestDto;
+import com.hotpotatoes.potatalk.chat.dto.chat.res.ChatRoomResponseDto;
 import com.hotpotatoes.potatalk.chat.domain.ChatRoom;
-import com.hotpotatoes.potatalk.chat.dto.ChatRoomStatusUpdateDto;
+import com.hotpotatoes.potatalk.chat.dto.chat.req.ChatRoomStatusUpdateDto;
 import com.hotpotatoes.potatalk.chat.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

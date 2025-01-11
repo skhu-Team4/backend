@@ -1,8 +1,8 @@
 package com.hotpotatoes.potatalk.chat.controller;
 
 import com.hotpotatoes.potatalk.chat.domain.NotificationSettings;
-import com.hotpotatoes.potatalk.chat.dto.MatchAcceptRequestDto;
-import com.hotpotatoes.potatalk.chat.dto.MatchRequestDto;
+import com.hotpotatoes.potatalk.chat.dto.chat.req.MatchAcceptRequestDto;
+import com.hotpotatoes.potatalk.chat.dto.match.req.MatchRequestDto;
 import com.hotpotatoes.potatalk.chat.service.MatchingService;
 import com.hotpotatoes.potatalk.chat.service.NotificationService;
 import lombok.RequiredArgsConstructor;

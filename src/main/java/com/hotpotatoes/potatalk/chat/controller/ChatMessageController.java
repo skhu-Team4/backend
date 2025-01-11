@@ -1,9 +1,9 @@
 package com.hotpotatoes.potatalk.chat.controller;
 
 import com.hotpotatoes.potatalk.chat.domain.NotificationSettings;
-import com.hotpotatoes.potatalk.chat.dto.ChatMessageDto;
-import com.hotpotatoes.potatalk.chat.dto.MarkMessagesAsReadDto;
-import com.hotpotatoes.potatalk.chat.dto.MessageDeleteDto;
+import com.hotpotatoes.potatalk.chat.dto.message.req.ChatMessageDto;
+import com.hotpotatoes.potatalk.chat.dto.match.req.MarkMessagesAsReadDto;
+import com.hotpotatoes.potatalk.chat.dto.message.req.MessageDeleteDto;
 import com.hotpotatoes.potatalk.chat.service.ChatMediaService;
 import com.hotpotatoes.potatalk.chat.service.ChatMessageService;
 import com.hotpotatoes.potatalk.chat.service.NotificationService;

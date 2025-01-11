@@ -3,7 +3,7 @@ package com.hotpotatoes.potatalk.chat.service;
 import com.hotpotatoes.potatalk.chat.domain.ChatMessage;
 import com.hotpotatoes.potatalk.chat.domain.ChatRoom;
 import com.hotpotatoes.potatalk.chat.domain.ChatRoomStatus;
-import com.hotpotatoes.potatalk.chat.dto.ChatMessageDto;
+import com.hotpotatoes.potatalk.chat.dto.message.req.ChatMessageDto;
 import com.hotpotatoes.potatalk.chat.repository.ChatMessageRepository;
 import com.hotpotatoes.potatalk.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
