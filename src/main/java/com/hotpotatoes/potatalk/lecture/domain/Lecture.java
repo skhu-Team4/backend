@@ -9,7 +9,6 @@ import lombok.*;
 @NoArgsConstructor(access= AccessLevel.PROTECTED)
 @AllArgsConstructor(access= AccessLevel.PROTECTED)
 public class Lecture {
-
     @Id
     @Column(name="lecture_id", unique = true, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

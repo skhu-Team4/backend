@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@@Service
+@Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class LectureService {
