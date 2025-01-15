@@ -32,7 +32,4 @@ public class Lecture {
     @JoinColumn(name="from_id")
     private Lecture fromId;
 
-
-
-
 }

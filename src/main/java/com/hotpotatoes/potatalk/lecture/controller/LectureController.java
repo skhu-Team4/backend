@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RequestMapping("/api/lecture")
@@ -16,7 +17,7 @@ import java.util.List;
 @RestController
 public class LectureController {
     private final LectureService lectureService;
-    
+
     // 전체조회 - 페이지네이션
     @GetMapping
     public ResponseEntity<PageResDto<LectureResDto>> getAllLectures(
@@ -25,7 +26,7 @@ public class LectureController {
         return ResponseEntity.ok(lectureService.getAllLectures(page, size));
     }
 
-    // 수업 참여인원 조회
+    // 수업 추가한 인원 조회
     @GetMapping("/{lecture-id}/participants")
     public ResponseEntity<Integer> getLectureParticipant(@PathVariable("lecture-id") Long lectureId) {
         return ResponseEntity.ok(lectureService.getParticipantCountByLectureId(lectureId));
@@ -49,9 +50,33 @@ public class LectureController {
         return ResponseEntity.ok(lectureService.addLecture(lectureReqDto));
     }
 
+    // 내가 선택한 강의 추가
+    @PostMapping("/my/{lecture-id}")
+    public ResponseEntity<LectureResDto> addMyLecture(
+            @PathVariable("lecture-id") Long lectureId,
+            Principal principal) {
+        return ResponseEntity.ok(lectureService.addMyLecture(lectureId, principal.getName()));
+    }
+
+    // 내가 선택한 강의 목록 조회
+    @GetMapping("/my")
+    public ResponseEntity<List<LectureResDto>> getMyLectures(Principal principal) {
+        return ResponseEntity.ok(lectureService.getMyLectures(principal.getName()));
+    }
+
     // 수업 삭제
-    @DeleteMapping("{lecture-id}")
-    public void deleteLecture(@PathVariable("lecture-id") Long lectureId) {
+    @DeleteMapping("/{lecture-id}")
+    public ResponseEntity<Void> deleteLecture(@PathVariable("lecture-id") Long lectureId) {
         lectureService.deleteLecture(lectureId);
+        return ResponseEntity.ok().build();
+    }
+
+    // 내가 선택한 강의 삭제
+    @DeleteMapping("/my/{lecture-id}")
+    public ResponseEntity<Void> deleteMyLecture(
+            @PathVariable("lecture-id") Long lectureId,
+            Principal principal) {
+        lectureService.deleteMyLecture(lectureId, principal.getName());
+        return ResponseEntity.ok().build();
     }
 }
