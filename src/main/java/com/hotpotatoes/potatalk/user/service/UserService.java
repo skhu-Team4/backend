@@ -6,6 +6,7 @@ import com.hotpotatoes.potatalk.user.dto.UserInfoDto;
 import com.hotpotatoes.potatalk.user.dto.UserSignUpDto;
 import com.hotpotatoes.potatalk.user.entity.User;
 import com.hotpotatoes.potatalk.user.jwt.TokenProvider;
+import com.hotpotatoes.potatalk.user.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class UserService {
                 .phoneNumber(signUpDto.getPhoneNumber())
                 .loginId(signUpDto.getLoginId()) // loginId 필드 추가
                 .name(signUpDto.getName()) // name 필드 추가
+                .profileImageUrl(signUpDto.getProfileImageUrl())
                 .introduction(signUpDto.getIntroduction())
                 .build());
 

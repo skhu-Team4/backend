@@ -1,4 +1,4 @@
-package com.hotpotatoes.potatalk.user.service;
+package com.hotpotatoes.potatalk.user.repository;
 
 import com.hotpotatoes.potatalk.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

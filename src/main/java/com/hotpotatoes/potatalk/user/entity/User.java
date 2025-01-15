@@ -3,6 +3,8 @@ package com.hotpotatoes.potatalk.user.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -35,6 +37,9 @@ public class User {
     @Column(name = "USER_ROLE", nullable = false)
     private Role role;
 
+    @Column(name = "profile_image_url")
+    private String profileImageUrl = "/images/default-profile.png";
+
     public Long getId() {
         return userId;
     }
@@ -44,7 +49,7 @@ public class User {
     }
 
     @Builder
-    public User(Long userId, String name, String email, String password, String phoneNumber, String loginId, String introduction) {
+    public User(Long userId, String name, String email, String password, String phoneNumber, String loginId, String introduction, String profileImageUrl) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -52,8 +57,12 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.loginId = loginId;
         this.introduction = introduction;
+        this.profileImageUrl = profileImageUrl;
         this.role = Role.ROLE_USER;
     }
 
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
 
 }
