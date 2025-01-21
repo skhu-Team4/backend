@@ -8,7 +8,7 @@ import com.hotpotatoes.potatalk.user.entity.User;
 import com.hotpotatoes.potatalk.user.jwt.TokenBlacklist;
 import com.hotpotatoes.potatalk.user.jwt.TokenProvider;
 import com.hotpotatoes.potatalk.user.service.EmailService;
-import com.hotpotatoes.potatalk.user.service.UserRepository;
+import com.hotpotatoes.potatalk.user.repository.UserRepository;
 import com.hotpotatoes.potatalk.user.service.UserService;
 import com.hotpotatoes.potatalk.user.service.VerificationService;
 import jakarta.servlet.http.HttpServletRequest;
