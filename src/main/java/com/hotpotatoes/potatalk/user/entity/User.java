@@ -1,9 +1,11 @@
 package com.hotpotatoes.potatalk.user.entity;
 
+import com.hotpotatoes.potatalk.lecture.domain.Lecture;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -43,6 +45,14 @@ public class User {
     @Column(name = "refresh_token")
     private String refreshToken; // 리프레시 토큰 필드 추가
 
+    @ManyToMany
+    @JoinTable(
+            name = "user_lecture", // 중간 테이블 이름
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "lecture_id")
+    )
+    private Set<Lecture> lectures = new HashSet<>();
+
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
@@ -59,6 +69,10 @@ public class User {
         this.introduction = introduction;
     }
 
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
     @Builder
     public User(Long userId, String name, String email, String password, String phoneNumber, String loginId, String introduction, String profileImageUrl) {
         this.userId = userId;
@@ -70,11 +84,20 @@ public class User {
         this.introduction = introduction;
         this.profileImageUrl = profileImageUrl;
         this.role = Role.ROLE_USER;
-        this.profileImageUrl = profileImageUrl;
     }
 
-    public void setProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
+    // 강의 목록 반환
+    public Set<Lecture> getLectures() {
+        return lectures;
     }
 
+    // 강의 추가
+    public void addLecture(Lecture lecture) {
+        lectures.add(lecture);
+    }
+
+    // 강의 제거
+    public void removeLecture(Lecture lecture) {
+        lectures.remove(lecture);
+    }
 }

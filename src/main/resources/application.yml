@@ -13,11 +13,15 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: create
+    defer-datasource-initialization: true
     show-sql: true
     properties:
       hibernate:
         format_sql: false
         use_sql_comments: true
+  sql:
+    init:
+      mode: always
 
   mail:
     host: smtp.gmail.com
