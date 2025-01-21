@@ -9,13 +9,10 @@ import com.hotpotatoes.potatalk.user.jwt.TokenProvider;
 import com.hotpotatoes.potatalk.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
 import java.util.Optional;
 
 @Service
@@ -26,7 +23,7 @@ public class UserService {
     private final TokenProvider tokenProvider;
 
     @Transactional
-    public UserInfoDto signUp(UserSignUpDto signUpDto) {
+    public TokenDto signUp(UserSignUpDto signUpDto) {
         User user = userRepository.save(User.builder()
                 .email(signUpDto.getEmail())
                 .password(passwordEncoder.encode(signUpDto.getPassword()))
@@ -36,13 +33,15 @@ public class UserService {
                 .introduction(signUpDto.getIntroduction())
                 .build());
 
-//        String accessToken = tokenProvider.createAccessToken(user);
-//        String refreshToken = tokenProvider.createRefreshToken();
-//
-//        user.setRefreshToken(refreshToken); // 리프레시 토큰 저장
+        String accessToken = tokenProvider.createAccessToken(user);
+        String refreshToken = tokenProvider.createRefreshToken();
+
+        user.setRefreshToken(refreshToken); // 리프레시 토큰 저장
         userRepository.save(user);
 
-        return UserInfoDto.from(user);
+        return TokenDto.builder()
+                .accessToken(accessToken)
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -50,23 +49,26 @@ public class UserService {
         // Authorization 헤더에서 액세스 토큰 추출
         String accessToken = tokenProvider.resolveToken(request);
         if (accessToken == null || !tokenProvider.validateToken(accessToken)) {
-            throw new IllegalArgumentException("유효하지 않은 JWT 토큰입니다.");
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
         }
 
-        // JWT에서 subject(userId) 추출
-        String subject = tokenProvider.getSubject(accessToken);
-        Long userId;
-        try {
-            userId = Long.parseLong(subject);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("JWT의 subject 값이 숫자가 아닙니다: " + subject, e);
-        }
+        Long userId = Long.parseLong(tokenProvider.getSubject(accessToken));
 
-        // 데이터베이스에서 사용자 정보 조회
+        // 사용자 조회
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("해당 ID의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        return new UserInfoDto(user);
+        // UserInfoDto로 변환하여 반환
+        return UserInfoDto.builder()
+                .userId(user.getUserId())
+                .name(user.getName())
+                .loginId(user.getLoginId())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .introduction(user.getIntroduction())
+                .profileImageUrl(user.getProfileImageUrl())
+                .role(user.getRole().name())
+                .build();
     }
 
     @Transactional
@@ -83,6 +85,7 @@ public class UserService {
         String accessToken = tokenProvider.createAccessToken(user);
         String refreshToken = tokenProvider.createRefreshToken();
 
+        user.setRefreshToken(refreshToken); // 리프레시 토큰 갱신
         userRepository.save(user);
 
         return TokenDto.builder()

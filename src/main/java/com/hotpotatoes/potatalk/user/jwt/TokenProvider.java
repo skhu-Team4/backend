@@ -43,7 +43,8 @@ public class TokenProvider {
         Date accessTokenExpiredTime = new Date(nowTime + accessTokenValidityTime);
 
         return Jwts.builder()
-                .setSubject(user.getUserId().toString())
+                .setSubject(user.getId().toString())
+                .claim(ROLE_CLAIM, user.getRole().name())
                 .setExpiration(accessTokenExpiredTime)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -131,8 +132,6 @@ public class TokenProvider {
                 .build()
                 .parseClaimsJws(token) // 토큰 파싱
                 .getBody();
-
-        System.out.println(claims.getSubject());
         return claims.getSubject(); // subject 반환
     }
 

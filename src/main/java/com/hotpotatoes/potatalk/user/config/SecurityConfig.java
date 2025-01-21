@@ -27,29 +27,36 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .httpBasic(AbstractHttpConfigurer::disable)  // http 기본 인증 비활성화
-                .csrf(AbstractHttpConfigurer::disable)       // csrf 비활성화
-                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(
-                        SessionCreationPolicy.STATELESS))    // 세션 비활성화
-                .formLogin(AbstractHttpConfigurer::disable)  // 폼 로그인 비활성화
-                .logout(AbstractHttpConfigurer::disable)     // 로그아웃 비활성화
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(sessionManagement ->
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/api/user/signup",
-                        "/api/user/login",
-                        "/api/user/check-id",
-                        "/api/user/check-email",
-                        "/api/user/check-nickname",
-                        "/api/user/email",
-                        "/api/user/verify-email",
-                        "/api/user/id",
-                        "/api/user/verify-user",
-                        "/api/user/password",
-                        "/api/user/refresh"
-                ).permitAll()
-                .anyRequest().authenticated()  // 위에 명시되지 않은 모든 요청은 인증 필요 //
-
+                        .requestMatchers(
+                                "/api/user/signup",
+                                "/api/user/login",
+                                "/api/user/check-id",
+                                "/api/user/check-email",
+                                "/api/user/check-nickname",
+                                "/api/user/email",
+                                "/api/user/verify-email",
+                                "/api/user/id",
+                                "/api/user/verify-user",
+                                "/api/user/password",
+                                "/api/user/refresh"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/user/profile-images",
+                                "/api/user/profile-image"
+                        ).authenticated()  // 프로필 이미지 관련 엔드포인트는 인증 필요
+                        .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtFilter(tokenProvider, tokenBlacklist), UsernamePasswordAuthenticationFilter.class); // JwtFilter 추가
+                .addFilterBefore(
+                        new JwtFilter(tokenProvider, tokenBlacklist),
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
@@ -59,5 +66,3 @@ public class SecurityConfig {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }
-
-
