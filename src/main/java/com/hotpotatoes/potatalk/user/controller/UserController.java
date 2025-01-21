@@ -37,10 +37,10 @@ public class UserController {
 
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<TokenDto> signUp(@RequestBody UserSignUpDto userSignUpDto) {
-        TokenDto response = userService.signUp(userSignUpDto);
+    public ResponseEntity<UserInfoDto> signUp(@RequestBody UserSignUpDto userSignUpDto) {
+        UserInfoDto response = userService.signUp(userSignUpDto);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/getuser")

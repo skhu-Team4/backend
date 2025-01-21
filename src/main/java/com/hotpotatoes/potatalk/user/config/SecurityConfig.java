@@ -34,7 +34,19 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)  // 폼 로그인 비활성화
                 .logout(AbstractHttpConfigurer::disable)     // 로그아웃 비활성화
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/api/user/**").permitAll()  // 로그인과 회원가입은 인증 없이 접근 가능
+                        .requestMatchers("/api/user/signup",
+                        "/api/user/login",
+                        "/api/user/check-id",
+                        "/api/user/check-email",
+                        "/api/user/check-nickname",
+                        "/api/user/email",
+                        "/api/user/verify-email",
+                        "/api/user/id",
+                        "/api/user/verify-user",
+                        "/api/user/password",
+                        "/api/user/refresh"
+                ).permitAll()
+                .anyRequest().authenticated()  // 위에 명시되지 않은 모든 요청은 인증 필요 //
 
                 )
                 .addFilterBefore(new JwtFilter(tokenProvider, tokenBlacklist), UsernamePasswordAuthenticationFilter.class); // JwtFilter 추가
