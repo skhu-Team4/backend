@@ -4,26 +4,36 @@ import com.hotpotatoes.potatalk.user.dto.LoginDto;
 import com.hotpotatoes.potatalk.user.dto.TokenDto;
 import com.hotpotatoes.potatalk.user.dto.UserInfoDto;
 import com.hotpotatoes.potatalk.user.dto.UserSignUpDto;
+import com.hotpotatoes.potatalk.user.entity.User;
+import com.hotpotatoes.potatalk.user.jwt.TokenBlacklist;
+import com.hotpotatoes.potatalk.user.jwt.TokenProvider;
 import com.hotpotatoes.potatalk.user.service.EmailService;
+import com.hotpotatoes.potatalk.user.service.UserRepository;
 import com.hotpotatoes.potatalk.user.service.UserService;
 import com.hotpotatoes.potatalk.user.service.VerificationService;
-import com.hotpotatoes.potatalk.user.entity.User;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Optional;
 
 import java.security.Principal;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController //이 클래스가 RESTful 웹 서비스 요청을 처리하는 컨트롤러임을 나타냄
 @RequestMapping("/api/user") //클래스 내의 모든 메서드가 /api/user 경로를 기준으로 동작
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED) //userService 필드에 대해 final로 선언된 생성자를 자동으로 생성, 외부에서 접근 불가
-public class UserController { //회원가입과 사용자 정보를 관리하는 비즈니스 로직을 포함한 서비스 클래스
+
+
+public class UserController {
     private final UserService userService;
     private final EmailService emailService;
     private final VerificationService verificationService;
+    private final TokenProvider tokenProvider;
+    private final UserRepository userRepository;
+    private final TokenBlacklist tokenBlacklist;
 
     // 회원가입
     @PostMapping("/signup")
@@ -34,8 +44,8 @@ public class UserController { //회원가입과 사용자 정보를 관리하는
     }
 
     @GetMapping("/getuser")
-    public ResponseEntity<UserInfoDto> getUser(Principal principal) {
-        UserInfoDto userInfoDto = userService.findByPrincipal(principal);
+    public ResponseEntity<UserInfoDto> getUser(HttpServletRequest request) {
+        UserInfoDto userInfoDto = userService.findByPrincipal(request);
 
         return ResponseEntity.ok(userInfoDto);
     }
@@ -135,4 +145,40 @@ public class UserController { //회원가입과 사용자 정보를 관리하는
         }
     }
 
+
+    // REFRESH토큰을 활용한 액세스 토큰 재발급
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenDto> refreshAccessToken(HttpServletRequest request) {
+        // 1. 리프레시 토큰 추출
+        String refreshToken = tokenProvider.resolveToken(request);
+
+        // 2. 리프레시 토큰 검증
+        if (refreshToken == null || !tokenProvider.validateRefreshToken(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null); // 검증 실패
+        }
+
+        // 3. 블랙리스트 확인
+        if (tokenBlacklist.isBlacklisted(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null); // 블랙리스트에 포함된 경우
+        }
+
+        // 4. 사용자 조회
+        User user = userRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new RuntimeException("유효하지 않은 리프레시 토큰입니다."));
+
+        // 5. 새로운 액세스 토큰 생성
+        String newAccessToken = tokenProvider.createAccessToken(user);
+
+        // 새로운 토큰 반환
+
+        return ResponseEntity.ok(
+                TokenDto.builder()
+                        .accessToken(newAccessToken) // 리프레시 토큰 없이 액세스 토큰만 설정
+                        .build()
+        );
+    }
+
+
 }
+
+

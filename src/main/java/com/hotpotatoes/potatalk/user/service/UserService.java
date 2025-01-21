@@ -6,6 +6,7 @@ import com.hotpotatoes.potatalk.user.dto.UserInfoDto;
 import com.hotpotatoes.potatalk.user.dto.UserSignUpDto;
 import com.hotpotatoes.potatalk.user.entity.User;
 import com.hotpotatoes.potatalk.user.jwt.TokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,10 @@ public class UserService {
                 .build());
 
         String accessToken = tokenProvider.createAccessToken(user);
+        String refreshToken = tokenProvider.createRefreshToken();
+
+        user.setRefreshToken(refreshToken); // 리프레시 토큰 저장
+        userRepository.save(user);
 
         return TokenDto.builder()
                 .accessToken(accessToken)
@@ -42,12 +47,20 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserInfoDto findByPrincipal(Principal principal) {
-        Long userId = Long.parseLong(principal.getName());
+    public UserInfoDto findByPrincipal(HttpServletRequest request) {
+        // Authorization 헤더에서 액세스 토큰 추출
+        String accessToken = tokenProvider.resolveToken(request); // 액세스 토큰을 헤더에서 추출
+        if (accessToken == null || !tokenProvider.validateToken(accessToken)) {
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+        }
 
+        Long userId = Long.parseLong(tokenProvider.getSubject(accessToken)); // 액세스 토큰에서 user_id 추출
+
+        // 사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
+        // UserInfoDto로 변환하여 반환
         return UserInfoDto.builder()
                 .userId(user.getUserId())
                 .name(user.getName())
@@ -59,6 +72,7 @@ public class UserService {
                 .build();
     }
 
+
     public TokenDto login(LoginDto loginDto) {
         // 사용자 조회
         User user = userRepository.findByLoginId(loginDto.getLoginId())
@@ -69,10 +83,16 @@ public class UserService {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
-        // JWT 토큰 생성
-        String token = tokenProvider.createAccessToken(user);
+        String accessToken = tokenProvider.createAccessToken(user);
+        String refreshToken = tokenProvider.createRefreshToken();
 
-        return new TokenDto(token);
+        user.setRefreshToken(refreshToken); // 리프레시 토큰 갱신
+        userRepository.save(user);
+
+        return TokenDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
     // 아이디 중복 체크
@@ -114,4 +134,6 @@ public class UserService {
         // 변경사항 저장
         userRepository.save(user);
     }
+
 }
+

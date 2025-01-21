@@ -28,11 +28,13 @@ public class TokenProvider {
 
     private final Key key;
     private final long accessTokenValidityTime;
+    private final long refreshTokenValidityTime;
 
-    public TokenProvider(@Value("${JWT_SECRET_KEY}") String secretKey, @Value("${ACCESS_TOKEN_VALIDITY_IN_MILLISECONDS}") long accessTokenValidityTime) {
+    public TokenProvider(@Value("${JWT_SECRET_KEY}") String secretKey, @Value("${ACCESS_TOKEN_VALIDITY_IN_MILLISECONDS}") long accessTokenValidityTime ,@Value("${REFRESH_TOKEN_VALIDITY_IN_MILLISECONDS}") long refreshTokenValidityTime) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenValidityTime = accessTokenValidityTime;
+        this.refreshTokenValidityTime = refreshTokenValidityTime;
     }
 
     public String createAccessToken(User user) {
@@ -44,6 +46,16 @@ public class TokenProvider {
                 .setSubject(user.getId().toString())
                 .claim(ROLE_CLAIM, user.getRole().name())
                 .setExpiration(accessTokenExpiredTime)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String createRefreshToken() {
+        long nowTime = (new Date().getTime());
+        Date expirationTime = new Date(nowTime + refreshTokenValidityTime);
+
+        return Jwts.builder()
+                .setExpiration(expirationTime)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -62,10 +74,7 @@ public class TokenProvider {
                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                         .collect(Collectors.toList());
 
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(claims.getSubject(), "", authorities);
-        authentication.setDetails(claims);
-
-        return authentication;
+        return new UsernamePasswordAuthenticationToken(claims.getSubject(), "", authorities);
     }
 
     public String resolveToken(HttpServletRequest request) { //토큰 분해/분석
@@ -90,6 +99,19 @@ public class TokenProvider {
         }
     }
 
+    public boolean validateRefreshToken(String refreshToken) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key) // 토큰 서명 키 설정
+                    .build()
+                    .parseClaimsJws(refreshToken); // 토큰 검증
+            return true; // 검증 성공
+        } catch (Exception e) {
+            return false; // 검증 실패
+        }
+    }
+
+
     private Claims parseClaims(String accessToken) {
         try {
             return Jwts.parserBuilder()
@@ -102,6 +124,15 @@ public class TokenProvider {
         } catch (SignatureException e) {
             throw new RuntimeException("토큰 복호화에 실패했습니다.");
         }
+    }
+
+    public String getSubject(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key) // JWT 서명 키 설정
+                .build()
+                .parseClaimsJws(token) // 토큰 파싱
+                .getBody();
+        return claims.getSubject(); // subject 반환
     }
 
 

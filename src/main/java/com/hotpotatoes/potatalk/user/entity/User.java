@@ -35,6 +35,16 @@ public class User {
     @Column(name = "USER_ROLE", nullable = false)
     private Role role;
 
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
+    @Column(name = "refresh_token")
+    private String refreshToken; // 리프레시 토큰 필드 추가
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
     public Long getId() {
         return userId;
     }
@@ -43,8 +53,12 @@ public class User {
         this.password = password;
     }
 
+    public void setIntroduction(String introduction) {
+        this.introduction = introduction;
+    }
+
     @Builder
-    public User(Long userId, String name, String email, String password, String phoneNumber, String loginId, String introduction) {
+    public User(Long userId, String name, String email, String password, String phoneNumber, String loginId, String introduction, String profileImageUrl) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -53,6 +67,7 @@ public class User {
         this.loginId = loginId;
         this.introduction = introduction;
         this.role = Role.ROLE_USER;
+        this.profileImageUrl = profileImageUrl;
     }
 
 

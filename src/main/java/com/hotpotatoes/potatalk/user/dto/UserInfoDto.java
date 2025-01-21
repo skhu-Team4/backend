@@ -15,4 +15,5 @@ public class UserInfoDto {
     private String loginId;
     private String introduction;
     private String role;
+    private String profileImageUrl;
 }
