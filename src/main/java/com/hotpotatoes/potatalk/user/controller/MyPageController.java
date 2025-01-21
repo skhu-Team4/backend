@@ -1,4 +1,4 @@
-package com.hotpotatoes.potatalk.user.contoller;
+package com.hotpotatoes.potatalk.user.controller;
 
 import com.hotpotatoes.potatalk.user.dto.ProfileImageRequest;
 import com.hotpotatoes.potatalk.user.dto.ProfileImageResponse;
