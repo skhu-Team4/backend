@@ -3,6 +3,8 @@ package com.hotpotatoes.potatalk.user.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -36,7 +38,7 @@ public class User {
     private Role role;
 
     @Column(name = "profile_image_url")
-    private String profileImageUrl;
+    private String profileImageUrl = "/images/default-profile.png";
 
     @Column(name = "refresh_token")
     private String refreshToken; // 리프레시 토큰 필드 추가
@@ -66,9 +68,13 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.loginId = loginId;
         this.introduction = introduction;
+        this.profileImageUrl = profileImageUrl;
         this.role = Role.ROLE_USER;
         this.profileImageUrl = profileImageUrl;
     }
 
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
 
 }

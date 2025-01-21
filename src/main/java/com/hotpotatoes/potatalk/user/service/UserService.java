@@ -6,19 +6,17 @@ import com.hotpotatoes.potatalk.user.dto.UserInfoDto;
 import com.hotpotatoes.potatalk.user.dto.UserSignUpDto;
 import com.hotpotatoes.potatalk.user.entity.User;
 import com.hotpotatoes.potatalk.user.jwt.TokenProvider;
+import com.hotpotatoes.potatalk.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.transaction.annotation.Transactional;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-
-import java.security.Principal;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -30,8 +28,8 @@ public class UserService {
                 .email(signUpDto.getEmail())
                 .password(passwordEncoder.encode(signUpDto.getPassword()))
                 .phoneNumber(signUpDto.getPhoneNumber())
-                .loginId(signUpDto.getLoginId()) // loginId 필드 추가
-                .name(signUpDto.getName()) // name 필드 추가
+                .loginId(signUpDto.getLoginId())
+                .name(signUpDto.getName())
                 .introduction(signUpDto.getIntroduction())
                 .build());
 
@@ -49,12 +47,12 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserInfoDto findByPrincipal(HttpServletRequest request) {
         // Authorization 헤더에서 액세스 토큰 추출
-        String accessToken = tokenProvider.resolveToken(request); // 액세스 토큰을 헤더에서 추출
+        String accessToken = tokenProvider.resolveToken(request);
         if (accessToken == null || !tokenProvider.validateToken(accessToken)) {
             throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
         }
 
-        Long userId = Long.parseLong(tokenProvider.getSubject(accessToken)); // 액세스 토큰에서 user_id 추출
+        Long userId = Long.parseLong(tokenProvider.getSubject(accessToken));
 
         // 사용자 조회
         User user = userRepository.findById(userId)
@@ -68,11 +66,12 @@ public class UserService {
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .introduction(user.getIntroduction())
+                .profileImageUrl(user.getProfileImageUrl())
                 .role(user.getRole().name())
                 .build();
     }
 
-
+    @Transactional
     public TokenDto login(LoginDto loginDto) {
         // 사용자 조회
         User user = userRepository.findByLoginId(loginDto.getLoginId())
@@ -96,26 +95,31 @@ public class UserService {
     }
 
     // 아이디 중복 체크
+    @Transactional(readOnly = true)
     public boolean isLoginIdAvailable(String loginId) {
         return userRepository.findByLoginId(loginId).isEmpty();
     }
 
     // 이메일 중복 체크
+    @Transactional(readOnly = true)
     public boolean isEmailAvailable(String email) {
         return userRepository.findByEmail(email).isEmpty();
     }
 
     // 닉네임 중복 체크
+    @Transactional(readOnly = true)
     public boolean isNicknameAvailable(String nickname) {
         return userRepository.findByName(nickname).isEmpty();
     }
 
     // 이메일로 사용자 찾기
+    @Transactional(readOnly = true)
     public Optional<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
     // 이메일과 아이디로 사용자 찾기
+    @Transactional(readOnly = true)
     public Optional<User> findByLoginIdAndEmail(String loginId, String email) {
         return userRepository.findByLoginIdAndEmail(loginId, email);
     }
@@ -131,9 +135,6 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(newPassword);
         user.setPassword(encodedPassword);
 
-        // 변경사항 저장
         userRepository.save(user);
     }
-
 }
-

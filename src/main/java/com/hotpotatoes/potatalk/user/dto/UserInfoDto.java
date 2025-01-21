@@ -14,6 +14,7 @@ public class UserInfoDto {
     private String phoneNumber;
     private String loginId;
     private String introduction;
+    private String profileImageUrl;
     private String role;
     private String profileImageUrl;
 }
