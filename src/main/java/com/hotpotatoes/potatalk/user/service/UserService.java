@@ -30,9 +30,8 @@ public class UserService {
                 .email(signUpDto.getEmail())
                 .password(passwordEncoder.encode(signUpDto.getPassword()))
                 .phoneNumber(signUpDto.getPhoneNumber())
-                .loginId(signUpDto.getLoginId()) // loginId 필드 추가
-                .name(signUpDto.getName()) // name 필드 추가
-                .profileImageUrl(signUpDto.getProfileImageUrl())
+                .loginId(signUpDto.getLoginId())
+                .name(signUpDto.getName())
                 .introduction(signUpDto.getIntroduction())
                 .build());
 
@@ -57,6 +56,7 @@ public class UserService {
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .introduction(user.getIntroduction())
+                .profileImageUrl(user.getProfileImageUrl())
                 .role(user.getRole().name())
                 .build();
     }

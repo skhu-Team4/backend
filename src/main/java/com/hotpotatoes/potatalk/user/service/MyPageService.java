@@ -1,8 +1,8 @@
-package com.hotpotatoes.potatalk.mypage.service;
+package com.hotpotatoes.potatalk.user.service;
 
-import com.hotpotatoes.potatalk.mypage.dto.request.ProfileImageRequest;
-import com.hotpotatoes.potatalk.mypage.dto.response.ProfileImageResponse;
-import com.hotpotatoes.potatalk.mypage.entity.ProfileImageType;
+import com.hotpotatoes.potatalk.user.dto.ProfileImageRequest;
+import com.hotpotatoes.potatalk.user.dto.ProfileImageResponse;
+import com.hotpotatoes.potatalk.user.type.ProfileImageType;
 import com.hotpotatoes.potatalk.user.entity.User;
 import com.hotpotatoes.potatalk.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

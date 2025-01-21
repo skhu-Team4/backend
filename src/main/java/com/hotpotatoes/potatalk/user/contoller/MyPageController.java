@@ -1,8 +1,8 @@
-package com.hotpotatoes.potatalk.mypage.controller;
+package com.hotpotatoes.potatalk.user.contoller;
 
-import com.hotpotatoes.potatalk.mypage.dto.request.ProfileImageRequest;
-import com.hotpotatoes.potatalk.mypage.dto.response.ProfileImageResponse;
-import com.hotpotatoes.potatalk.mypage.service.MyPageService;
+import com.hotpotatoes.potatalk.user.dto.ProfileImageRequest;
+import com.hotpotatoes.potatalk.user.dto.ProfileImageResponse;
+import com.hotpotatoes.potatalk.user.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

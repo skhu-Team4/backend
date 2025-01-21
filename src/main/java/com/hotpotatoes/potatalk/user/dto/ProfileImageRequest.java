@@ -1,4 +1,4 @@
-package com.hotpotatoes.potatalk.mypage.dto.request;
+package com.hotpotatoes.potatalk.user.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

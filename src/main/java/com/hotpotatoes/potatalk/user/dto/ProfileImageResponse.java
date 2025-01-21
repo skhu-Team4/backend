@@ -1,6 +1,6 @@
-package com.hotpotatoes.potatalk.mypage.dto.response;
+package com.hotpotatoes.potatalk.user.dto;
 
-import com.hotpotatoes.potatalk.mypage.entity.ProfileImageType;
+import com.hotpotatoes.potatalk.user.type.ProfileImageType;
 import lombok.Builder;
 import lombok.Getter;
 
