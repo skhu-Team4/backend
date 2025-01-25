@@ -1,8 +1,12 @@
 package com.hotpotatoes.potatalk.user.entity;
 
 import com.hotpotatoes.potatalk.lecture.domain.Lecture;
+import com.hotpotatoes.potatalk.user.entity.Role;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,7 +15,6 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false)
@@ -43,22 +46,27 @@ public class User {
     private String profileImageUrl = "/images/default-profile.png";
 
     @Column(name = "refresh_token")
-    private String refreshToken; // 리프레시 토큰 필드 추가
+    private String refreshToken;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_lecture", // 중간 테이블 이름
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "lecture_id")
-    )
+    @ManyToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Lecture> lectures = new HashSet<>();
+
+    @Builder
+    public User(Long userId, String name, String email, String password,
+                String phoneNumber, String loginId, String introduction, String profileImageUrl) {
+        this.userId = userId;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.loginId = loginId;
+        this.introduction = introduction;
+        this.profileImageUrl = profileImageUrl;
+        this.role = Role.ROLE_USER;
+    }
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
-    }
-
-    public Long getId() {
-        return userId;
     }
 
     public void setPassword(String password) {
@@ -73,31 +81,15 @@ public class User {
         this.profileImageUrl = profileImageUrl;
     }
 
-    @Builder
-    public User(Long userId, String name, String email, String password, String phoneNumber, String loginId, String introduction, String profileImageUrl) {
-        this.userId = userId;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-        this.loginId = loginId;
-        this.introduction = introduction;
-        this.profileImageUrl = profileImageUrl;
-        this.role = Role.ROLE_USER;
-    }
-
-    // 강의 목록 반환
-    public Set<Lecture> getLectures() {
-        return lectures;
-    }
-
     // 강의 추가
     public void addLecture(Lecture lecture) {
-        lectures.add(lecture);
+        this.lectures.add(lecture);
+        lecture.getUsers().add(this);
     }
 
     // 강의 제거
     public void removeLecture(Lecture lecture) {
-        lectures.remove(lecture);
+        this.lectures.remove(lecture);
+        lecture.getUsers().remove(this);
     }
 }

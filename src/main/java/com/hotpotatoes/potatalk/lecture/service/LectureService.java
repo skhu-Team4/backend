@@ -59,37 +59,6 @@ public class LectureService {
         return LectureResDto.of(savedLecture);
     }
 
-    // 내 강의 추가
-    @Transactional
-    public LectureResDto addMyLecture(Long lectureId, String username) {
-        // 사용자와 강의 조회
-        User user = userRepository.findByLoginId(username)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        Lecture lecture = lectureRepository.findById(lectureId)
-                .orElseThrow(() -> new LectureException(LectureErrorCode.LECTURE_NOT_FOUND));
-
-        // 이미 추가된 강의인지 확인
-        if (user.getLectures().contains(lecture)) {
-            throw new LectureException(LectureErrorCode.LECTURE_ALREADY_EXISTS);
-        }
-
-        // 사용자의 강의 목록에 추가
-        user.getLectures().add(lecture);
-        userRepository.save(user);
-
-        return LectureResDto.of(lecture);
-    }
-
-    // 내 강의 목록 조회
-    public List<LectureResDto> getMyLectures(String username) {
-        User user = userRepository.findByLoginId(username)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        return user.getLectures().stream()
-                .map(LectureResDto::of)
-                .collect(Collectors.toList());
-    }
-
     // 수업 삭제
     @Transactional
     public void deleteLecture(Long lectureId) {
@@ -98,22 +67,54 @@ public class LectureService {
         lectureRepository.delete(lecture);
     }
 
-    // 내 강의 삭제
+    // 내 강의 추가
     @Transactional
-    public void deleteMyLecture(Long lectureId, String username) {
-        // 사용자와 강의 조회
-        User user = userRepository.findByLoginId(username)
+    public LectureResDto addMyLecture(Long lectureId, String userId) {
+        User user = userRepository.findById(Long.parseLong(userId))
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
         Lecture lecture = lectureRepository.findById(lectureId)
                 .orElseThrow(() -> new LectureException(LectureErrorCode.LECTURE_NOT_FOUND));
 
-        // 사용자의 강의 목록에서 해당 강의가 있는지 확인
+        if (user.getLectures().contains(lecture)) {
+            throw new LectureException(LectureErrorCode.LECTURE_ALREADY_EXISTS);
+        }
+
+        // 양방향 관계 설정을 위해 편의 메서드 사용
+        lecture.addUser(user);  // 또는 user.addLecture(lecture)
+
+        // 변경사항 저장
+        lectureRepository.save(lecture);
+
+        return LectureResDto.of(lecture);
+    }
+
+    // 내 강의 목록 조회
+    public List<LectureResDto> getMyLectures(String userId) {
+        User user = userRepository.findById(Long.parseLong(userId))
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        return user.getLectures().stream()
+                .map(LectureResDto::of)
+                .collect(Collectors.toList());
+    }
+
+    // 내 강의 삭제
+    @Transactional
+    public void deleteMyLecture(Long lectureId, String userId) {
+        User user = userRepository.findById(Long.parseLong(userId))
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        Lecture lecture = lectureRepository.findById(lectureId)
+                .orElseThrow(() -> new LectureException(LectureErrorCode.LECTURE_NOT_FOUND));
+
         if (!user.getLectures().contains(lecture)) {
             throw new LectureException(LectureErrorCode.LECTURE_NOT_FOUND);
         }
 
-        // 사용자의 강의 목록에서 제거
-        user.getLectures().remove(lecture);
-        userRepository.save(user);
+        // 양방향 관계 제거를 위해 편의 메서드 사용
+        lecture.removeUser(user);  // 또는 user.removeLecture(lecture)
+
+        lectureRepository.save(lecture);
     }
 }
