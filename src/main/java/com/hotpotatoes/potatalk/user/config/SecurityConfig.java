@@ -37,20 +37,17 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/user/signup",
                                 "/api/user/login",
+                                "/api/lecture/**",
+                                "/api/user/refresh",
                                 "/api/user/check-id",
                                 "/api/user/check-email",
-                                "/api/user/check-nickname",
                                 "/api/user/email",
-                                "/api/user/verify-email",
-                                "/api/user/id",
-                                "/api/user/verify-user",
-                                "/api/user/password",
-                                "/api/user/refresh"
+                                "/api/user/verify-email"
+
                         ).permitAll()
                         .requestMatchers(
-                                "/api/user/profile-images",
-                                "/api/user/profile-image"
-                        ).authenticated()  // 프로필 이미지 관련 엔드포인트는 인증 필요
+                                "/api/lecture/my/**"  // 내 강의 관련 엔드포인트는 인증 필요
+                        ).authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
