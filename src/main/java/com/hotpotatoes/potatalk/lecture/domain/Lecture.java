@@ -1,12 +1,15 @@
 package com.hotpotatoes.potatalk.lecture.domain;
-import com.hotpotatoes.potatalk.user.entity.User;
 
+import com.hotpotatoes.potatalk.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
-@Setter  // Setter 추가
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Lecture {
     @Id
@@ -23,9 +26,13 @@ public class Lecture {
     @Column(nullable = false)
     private String professor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;  // private 필드지만 getter/setter가 필요
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "user_lecture",
+            joinColumns = @JoinColumn(name = "lecture_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> users = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "to_id")
@@ -36,18 +43,23 @@ public class Lecture {
     private Lecture fromId;
 
     @Builder
-    public Lecture(String lectureName, String major, String professor, User user, Lecture toId, Lecture fromId) {
+    public Lecture(String lectureName, String major, String professor,
+                   Lecture toId, Lecture fromId) {
         this.lectureName = lectureName;
         this.major = major;
         this.professor = professor;
-        this.user = user;
         this.toId = toId;
         this.fromId = fromId;
     }
 
-    // 연관관계 편의 메서드 추가
-    public void setUser(User user) {
-        this.user = user;
-        user.getLectures().add(this);  // 양방향 관계 설정
+    // 연관관계 편의 메서드
+    public void addUser(User user) {
+        this.users.add(user);
+        user.getLectures().add(this);
+    }
+
+    public void removeUser(User user) {
+        this.users.remove(user);
+        user.getLectures().remove(this);
     }
 }

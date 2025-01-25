@@ -26,7 +26,7 @@ public class LectureController {
         return ResponseEntity.ok(lectureService.getAllLectures(page, size));
     }
 
-    // 수업 추가한 인원 조회
+    // 수업 채팅방 참여 인원 조회
     @GetMapping("/{lecture-id}/participants")
     public ResponseEntity<Integer> getLectureParticipant(@PathVariable("lecture-id") Long lectureId) {
         return ResponseEntity.ok(lectureService.getParticipantCountByLectureId(lectureId));
@@ -48,16 +48,17 @@ public class LectureController {
     @PostMapping
     public ResponseEntity<LectureResDto> addLecture(@RequestBody LectureReqDto lectureReqDto) {
         return ResponseEntity.ok(lectureService.addLecture(lectureReqDto));
-    }
+    } 
 
     // 내가 선택한 강의 추가
     @PostMapping("/my/{lecture-id}")
     public ResponseEntity<LectureResDto> addMyLecture(
             @PathVariable("lecture-id") Long lectureId,
             Principal principal) {
-        return ResponseEntity.ok(lectureService.addMyLecture(lectureId, principal.getName()));
+        String username = principal.getName();
+        System.out.println("Principal name: " + username);  // 로그 추가
+        return ResponseEntity.ok(lectureService.addMyLecture(lectureId, username));
     }
-
     // 내가 선택한 강의 목록 조회
     @GetMapping("/my")
     public ResponseEntity<List<LectureResDto>> getMyLectures(Principal principal) {
