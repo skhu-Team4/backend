@@ -37,20 +37,19 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/user/signup",
                                 "/api/user/login",
-                                "/api/user/check-id",
-                                "/api/user/check-email",
-                                "/api/user/check-nickname",
-                                "/api/user/email",
-                                "/api/user/verify-email",
-                                "/api/user/id",
-                                "/api/user/verify-user",
-                                "/api/user/password",
+                                // ... 기존 permitAll 경로들 ...
                                 "/api/user/refresh"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/lecture/my/**"  // 내 강의 관련 엔드포인트는 인증 필요
+                        ).authenticated()
+                        .requestMatchers(
+                                "/api/lecture/**"     // 일반 강의 조회는 인증 없이 허용
                         ).permitAll()
                         .requestMatchers(
                                 "/api/user/profile-images",
                                 "/api/user/profile-image"
-                        ).authenticated()  // 프로필 이미지 관련 엔드포인트는 인증 필요
+                        ).authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
@@ -66,5 +65,3 @@ public class SecurityConfig {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }
-
-

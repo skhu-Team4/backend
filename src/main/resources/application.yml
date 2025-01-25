@@ -12,12 +12,19 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: create    # 개발중일 때만 create
+    defer-datasource-initialization: true    # 이 부분도 그대로 유지
     show-sql: true
     properties:
       hibernate:
-        format_sql: false
+        format_sql: true
         use_sql_comments: true
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:강의더미데이터.sql  # 테스트용, 배포시 수정 필요
+      encoding: UTF-8    # UTF-8 인코딩 추가
 
   mail:
     host: smtp.gmail.com
@@ -31,9 +38,6 @@ spring:
           auth: true
           starttls:
             enable: true
-
-
-
 
 server:
   port: 8080
