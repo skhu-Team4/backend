@@ -5,7 +5,7 @@ public enum ProfileImageType {
     PROFILE_1("profile1"),
     PROFILE_2("profile2"),
     PROFILE_3("profile3");
-    
+
     private final String imageId;
 
     ProfileImageType(String imageId) {

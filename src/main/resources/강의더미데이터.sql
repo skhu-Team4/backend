@@ -1,4 +1,5 @@
 INSERT INTO lecture(lecture_name, major, professor) VALUES
+
                                                         ('알고리즘', '소프트웨어공학전공', '노은하'),
                                                         ('데이터베이스', '소프트웨어공학전공', '홍은지'),
                                                         ('컴퓨터네트워크', '소프트웨어공학전공', '유상신'),

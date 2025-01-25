@@ -14,3 +14,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByRefreshToken(String refreshToken);  // HEAD에서 추가된 메서드 유지
 
 }
+

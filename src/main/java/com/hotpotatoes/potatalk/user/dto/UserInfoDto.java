@@ -41,4 +41,6 @@ public class UserInfoDto {
                 .profileImageUrl(user.getProfileImageUrl())
                 .build();
     }
+
 }
+

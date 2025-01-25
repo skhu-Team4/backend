@@ -118,3 +118,4 @@ public class LectureService {
         lectureRepository.save(lecture);
     }
 }
+

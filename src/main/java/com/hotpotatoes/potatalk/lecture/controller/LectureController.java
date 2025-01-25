@@ -48,7 +48,7 @@ public class LectureController {
     @PostMapping
     public ResponseEntity<LectureResDto> addLecture(@RequestBody LectureReqDto lectureReqDto) {
         return ResponseEntity.ok(lectureService.addLecture(lectureReqDto));
-    }
+    } 
 
     // 내가 선택한 강의 추가
     @PostMapping("/my/{lecture-id}")
