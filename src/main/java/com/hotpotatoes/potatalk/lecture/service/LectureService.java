@@ -9,6 +9,7 @@ import com.hotpotatoes.potatalk.lecture.exception.LectureErrorCode;
 import com.hotpotatoes.potatalk.lecture.repository.LectureRepository;
 import com.hotpotatoes.potatalk.user.entity.User;
 import com.hotpotatoes.potatalk.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,9 +33,11 @@ public class LectureService {
                 .map(LectureResDto::of));
     }
 
-    // 수업 참여 인원 조회
+    // 채팅방 참여 인원 조회
     public int getParticipantCountByLectureId(Long lectureId) {
-        return lectureRepository.countByLectureId(lectureId);
+        Lecture lecture = lectureRepository.findById(lectureId)
+                .orElseThrow(() -> new EntityNotFoundException("강의가 존재하지 않습니다."));
+        return lecture.getUsers().size();
     }
 
     // 강의명으로 조회 (부분 일치)

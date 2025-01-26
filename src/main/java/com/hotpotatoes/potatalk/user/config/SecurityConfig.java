@@ -37,18 +37,16 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/user/signup",
                                 "/api/user/login",
-                                // ... 기존 permitAll 경로들 ...
-                                "/api/user/refresh"
+                                "/api/lecture/**",
+                                "/api/user/refresh",
+                                "/api/user/check-id",
+                                "/api/user/check-email",
+                                "/api/user/email",
+                                "/api/user/verify-email",
+                                "/api/user/profile-images"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/lecture/my/**"  // 내 강의 관련 엔드포인트는 인증 필요
-                        ).authenticated()
-                        .requestMatchers(
-                                "/api/lecture/**"     // 일반 강의 조회는 인증 없이 허용
-                        ).permitAll()
-                        .requestMatchers(
-                                "/api/user/profile-images",
-                                "/api/user/profile-image"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )

@@ -77,6 +77,7 @@ public class UserController {
         boolean isAvailable = userService.isNicknameAvailable(nickname);
         return ResponseEntity.ok(isAvailable);
     }
+
     // 이메일 인증번호 전송 API
     @PostMapping("/email")
     public ResponseEntity<String> sendVerificationCode(@RequestParam String email) {
