@@ -15,7 +15,7 @@ public class UserInfoDto {
     private String phoneNumber;
     private String loginId;
     private String introduction;
-    private String profileImageUrl;
+    private String currentImageId;
     private String role;
 
     // User 엔티티를 매개변수로 받는 추가 생성자
@@ -26,7 +26,7 @@ public class UserInfoDto {
         this.phoneNumber = user.getPhoneNumber(); // User 엔티티의 phoneNumber
         this.loginId = user.getLoginId();         // User 엔티티의 loginId
         this.introduction = user.getIntroduction(); // User 엔티티의 introduction
-        this.profileImageUrl = user.getProfileImageUrl(); // User 엔티티의 profileImageUrl
+        this.currentImageId = user.getCurrentImageId(); // User 엔티티의 현재 프로필
         this.role = user.getRole().name();        // User 엔티티의 Role을 문자열로 변환
     }
 
@@ -38,7 +38,7 @@ public class UserInfoDto {
                 .phoneNumber(user.getPhoneNumber())
                 .loginId(user.getPhoneNumber())
                 .introduction(user.getIntroduction())
-                .profileImageUrl(user.getProfileImageUrl())
+                .currentImageId(user.getProfileImageUrl())
                 .build();
     }
 

@@ -66,7 +66,7 @@ public class UserService {
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .introduction(user.getIntroduction())
-                .profileImageUrl(user.getProfileImageUrl())
+                .currentImageId(user.getCurrentImageId())
                 .role(user.getRole().name())
                 .build();
     }

@@ -61,7 +61,7 @@ public class MyPageService {
     @Transactional(readOnly = true)
     public ProfileImageResponse getProfileImages(Principal principal) {
         User user = getUserFromPrincipal(principal);
-        String currentImageId = user.getProfileImageUrl();
+        String currentImageId = user.getCurrentImageId();
         return ProfileImageResponse.of(currentImageId);
     }
 
@@ -74,7 +74,7 @@ public class MyPageService {
         ProfileImageType.fromImageId(request.getImageId());
 
         // imageId 저장
-        user.setProfileImageUrl(request.getImageId());
+        user.setCurrentImageId(request.getImageId());
         userRepository.save(user);
     }
 

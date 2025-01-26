@@ -2,6 +2,7 @@ package com.hotpotatoes.potatalk.user.entity;
 
 import com.hotpotatoes.potatalk.lecture.domain.Lecture;
 import com.hotpotatoes.potatalk.user.entity.Role;
+import com.hotpotatoes.potatalk.user.type.ProfileImageType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -45,6 +46,9 @@ public class User {
     @Column(name = "profile_image_url")
     private String profileImageUrl = "/images/default-profile.png";
 
+    @Column(name = "current_image_id", nullable = false)
+    private String currentImageId = ProfileImageType.PROFILE_1.getImageId();
+
     @Column(name = "refresh_token")
     private String refreshToken;
 
@@ -62,6 +66,7 @@ public class User {
         this.loginId = loginId;
         this.introduction = introduction;
         this.profileImageUrl = profileImageUrl;
+        this.currentImageId = ProfileImageType.PROFILE_1.getImageId(); // 기본값 설정
         this.role = Role.ROLE_USER;
     }
 
@@ -77,10 +82,9 @@ public class User {
         this.introduction = introduction;
     }
 
-    public void setProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
+    public void setCurrentImageId(String currentImageId) {
+        this.currentImageId = currentImageId;
     }
-
     // 강의 추가
     public void addLecture(Lecture lecture) {
         this.lectures.add(lecture);
