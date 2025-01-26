@@ -62,4 +62,6 @@ public class Lecture {
         this.users.remove(user);
         user.getLectures().remove(this);
     }
+
 }
+

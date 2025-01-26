@@ -43,7 +43,8 @@ public class SecurityConfig {
                                 "/api/user/check-email",
                                 "/api/user/email",
                                 "/api/user/verify-email",
-                                "/api/user/profile-images"
+                                "/api/user/profile-images",
+                                "/api/user/verify-email"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/lecture/my/**"  // 내 강의 관련 엔드포인트는 인증 필요

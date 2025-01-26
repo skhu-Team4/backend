@@ -69,7 +69,7 @@ public class LectureService {
                 .orElseThrow(() -> new LectureException(LectureErrorCode.LECTURE_NOT_FOUND));
         lectureRepository.delete(lecture);
     }
-    
+
     // 내 강의 추가
     @Transactional
     public LectureResDto addMyLecture(Long lectureId, String userId) {
