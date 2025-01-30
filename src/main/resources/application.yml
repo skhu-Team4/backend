@@ -12,19 +12,14 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: create    # 개발중일 때만 create
-    defer-datasource-initialization: true    # 이 부분도 그대로 유지
-    show-sql: true
+      ddl-auto: none    # create에서 none으로 변경. 운영 환경에서는 스키마 자동 생성 비활성화
+    show-sql: false     # 운영 환경에서는 SQL 로그 비활성화
     properties:
       hibernate:
-        format_sql: true
-        use_sql_comments: true
+        format_sql: false  # 운영 환경에서는 SQL 포맷팅 비활성화
+        use_sql_comments: false  # 운영 환경에서는 SQL 코멘트 비활성화
 
-  sql:
-    init:
-      mode: always
-      data-locations: classpath:강의더미데이터.sql  # 테스트용, 배포시 수정 필요
-      encoding: UTF-8    # UTF-8 인코딩 추가
+  # sql.init 섹션 제거 - 더미 데이터는 운영 환경에서 불필요
 
   mail:
     host: smtp.gmail.com
