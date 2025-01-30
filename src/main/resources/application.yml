@@ -1,6 +1,11 @@
 spring:
   application:
     name: Potatalk
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
+
 
   datasource:
     url: ${DB_JDBC_URL}
@@ -12,14 +17,21 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: none    # create에서 none으로 변경. 운영 환경에서는 스키마 자동 생성 비활성화
-    show-sql: false     # 운영 환경에서는 SQL 로그 비활성화
+      ddl-auto: create    # create에서 none으로 변경. 운영 환경에서는 스키마 자동 생성 비활성화
+    defer-datasource-initialization: true
+    show-sql: true  # 운영 환경에서는 SQL 로그 비활성화
     properties:
       hibernate:
-        format_sql: false  # 운영 환경에서는 SQL 포맷팅 비활성화
-        use_sql_comments: false  # 운영 환경에서는 SQL 코멘트 비활성화
+        format_sql: true  # 운영 환경에서는 SQL 포맷팅 비활성화
+        use_sql_comments: true  # 운영 환경에서는 SQL 코멘트 비활성화
 
   # sql.init 섹션 제거 - 더미 데이터는 운영 환경에서 불필요
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:강의더미데이터.sql  # 테스트용, 배포시 수정 필요
+      encoding: UTF-8    # UTF-8 인코딩 추가
+
 
   mail:
     host: smtp.gmail.com
