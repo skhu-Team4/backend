@@ -12,13 +12,17 @@ import com.hotpotatoes.potatalk.user.repository.UserRepository;
 import com.hotpotatoes.potatalk.user.service.UserService;
 import com.hotpotatoes.potatalk.user.service.VerificationService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,9 +41,17 @@ public class UserController {
 
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<TokenDto> signUp(@RequestBody UserSignUpDto userSignUpDto) {
-        TokenDto response = userService.signUp(userSignUpDto);
+    public ResponseEntity<?> signUp(@Valid @RequestBody UserSignUpDto userSignUpDto, BindingResult bindingResult) {
+        // 유효성 검사 실패 시 에러 메시지 반환
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                errors.put(error.getField(), error.getDefaultMessage());  // 필드별 에러 메시지 저장
+            }
+            return ResponseEntity.badRequest().body(errors);
+        }
 
+        TokenDto response = userService.signUp(userSignUpDto);
         return ResponseEntity.ok(response);
     }
 
