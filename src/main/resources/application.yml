@@ -1,6 +1,6 @@
 spring:
   application:
-    name: PotatalkS
+    name: Potatalk
 
   datasource:
     url: ${DB_JDBC_URL}
