@@ -1,6 +1,6 @@
 spring:
   application:
-    name: Potatalk
+    name: PotatalkS
 
   datasource:
     url: ${DB_JDBC_URL}
@@ -12,12 +12,32 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: create
-    show-sql: true
+      ddl-auto: none    # create에서 none으로 변경. 운영 환경에서는 스키마 자동 생성 비활성화
+    show-sql: false     # 운영 환경에서는 SQL 로그 비활성화
     properties:
       hibernate:
-        format_sql: false
-        use_sql_comments: true
+        format_sql: false  # 운영 환경에서는 SQL 포맷팅 비활성화
+        use_sql_comments: false  # 운영 환경에서는 SQL 코멘트 비활성화
+
+  # sql.init 섹션 제거 - 더미 데이터는 운영 환경에서 불필요
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 server:
   port: 8080
+
+jwt:
+  secret: ${JWT_SECRET_KEY}
+  access-token-validity-in-milliseconds: ${ACCESS_TOKEN_VALIDITY_IN_MILLISECONDS}
+  refresh-token-validity-in-milliseconds: ${REFRESH_TOKEN_VALIDITY_IN_MILLISECONDS}
