@@ -44,7 +44,9 @@ public class SecurityConfig {
                                 "/api/user/email",
                                 "/api/user/verify-email",
                                 "/api/user/profile-images",
-                                "/api/user/verify-email"
+                                "/api/user/verify-email",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/lecture/my/**"  // 내 강의 관련 엔드포인트는 인증 필요
