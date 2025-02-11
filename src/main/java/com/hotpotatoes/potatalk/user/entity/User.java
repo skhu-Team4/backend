@@ -21,17 +21,11 @@ public class User {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "name", nullable = false)
-    private String name;
-
     @Column(name = "password", nullable = false)
     private String password;
 
     @Column(name = "email", nullable = false)
     private String email;
-
-    @Column(name = "phoneNumber", nullable = false)
-    private String phoneNumber;
 
     @Column(name = "loginId", nullable = false, unique = true)
     private String loginId;
@@ -56,13 +50,11 @@ public class User {
     private Set<Lecture> lectures = new HashSet<>();
 
     @Builder
-    public User(Long userId, String name, String email, String password,
-                String phoneNumber, String loginId, String introduction, String profileImageUrl) {
+    public User(Long userId, String email, String password,
+                String loginId, String introduction, String profileImageUrl) {
         this.userId = userId;
-        this.name = name;
         this.email = email;
         this.password = password;
-        this.phoneNumber = phoneNumber;
         this.loginId = loginId;
         this.introduction = introduction;
         this.profileImageUrl = profileImageUrl;

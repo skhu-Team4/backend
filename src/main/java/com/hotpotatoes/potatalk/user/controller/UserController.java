@@ -83,13 +83,6 @@ public class UserController {
         return ResponseEntity.ok(isAvailable);
     }
 
-    // 닉네임 중복 체크
-    @GetMapping("/check-nickname")
-    public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
-        boolean isAvailable = userService.isNicknameAvailable(nickname);
-        return ResponseEntity.ok(isAvailable);
-    }
-
     // 이메일 인증번호 전송 API
     @PostMapping("/email")
     public ResponseEntity<String> sendVerificationCode(@RequestParam String email) {
