@@ -8,12 +8,14 @@ import com.hotpotatoes.potatalk.user.entity.User;
 import com.hotpotatoes.potatalk.user.jwt.TokenProvider;
 import com.hotpotatoes.potatalk.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -27,9 +29,7 @@ public class UserService {
         User user = userRepository.save(User.builder()
                 .email(signUpDto.getEmail())
                 .password(passwordEncoder.encode(signUpDto.getPassword()))
-                .phoneNumber(signUpDto.getPhoneNumber())
                 .loginId(signUpDto.getLoginId())
-                .name(signUpDto.getName())
                 .introduction(signUpDto.getIntroduction())
                 .build());
 
@@ -61,10 +61,8 @@ public class UserService {
         // UserInfoDto로 변환하여 반환
         return UserInfoDto.builder()
                 .userId(user.getUserId())
-                .name(user.getName())
                 .loginId(user.getLoginId())
                 .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
                 .introduction(user.getIntroduction())
                 .currentImageId(user.getCurrentImageId())
                 .role(user.getRole().name())
@@ -106,12 +104,6 @@ public class UserService {
         return userRepository.findByEmail(email).isEmpty();
     }
 
-    // 닉네임 중복 체크
-    @Transactional(readOnly = true)
-    public boolean isNicknameAvailable(String nickname) {
-        return userRepository.findByName(nickname).isEmpty();
-    }
-
     // 이메일로 사용자 찾기
     @Transactional(readOnly = true)
     public Optional<User> findUserByEmail(String email) {
@@ -131,10 +123,22 @@ public class UserService {
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이디를 가진 사용자를 찾을 수 없습니다."));
 
+        // 비밀번호 길이 검증
+        if (newPassword.length() < 8 || newPassword.length() > 20) {
+            throw new ValidationException("비밀번호는 8자 이상, 20자 이하이어야 합니다.");
+        }
+
+        // 비밀번호 패턴 검증 (알파벳 + 숫자 포함, 특수문자 & 한글 금지)
+        String passwordPattern = "^(?=.*[A-Za-z])(?=.*\\d)(?!.*[ㄱ-ㅎ가-힣])[A-Za-z\\d]+$";
+        if (!Pattern.matches(passwordPattern, newPassword)) {
+            throw new ValidationException("비밀번호는 최소 하나의 알파벳과 숫자를 포함해야 하며, 특수문자와 한글은 사용할 수 없습니다.");
+        }
+
         // 새 비밀번호 해시화 및 저장
         String encodedPassword = passwordEncoder.encode(newPassword);
         user.setPassword(encodedPassword);
 
         userRepository.save(user);
     }
+
 }

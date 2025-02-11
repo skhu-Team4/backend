@@ -7,7 +7,6 @@ import lombok.Getter;
 
 @Getter
 public class UserSignUpDto {
-    private String name;
     private String loginId;
     private String email;
 
@@ -17,7 +16,6 @@ public class UserSignUpDto {
             message = "비밀번호는 최소 하나의 알파벳과 숫자를 포함해야 하며, 특수문자와 한글은 사용할 수 없습니다."
     )
     private String password;
-    private String phoneNumber;
     private String profileImageUrl;
     private String introduction;
 }

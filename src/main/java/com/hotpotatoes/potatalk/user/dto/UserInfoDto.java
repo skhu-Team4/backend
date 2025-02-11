@@ -10,9 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserInfoDto {
     private Long userId;
-    private String name;
     private String email;
-    private String phoneNumber;
     private String loginId;
     private String introduction;
     private String currentImageId;
@@ -21,9 +19,7 @@ public class UserInfoDto {
     // User 엔티티를 매개변수로 받는 추가 생성자
     public UserInfoDto(User user) {
         this.userId = user.getUserId();           // User 엔티티의 userId
-        this.name = user.getName();               // User 엔티티의 name
         this.email = user.getEmail();             // User 엔티티의 email
-        this.phoneNumber = user.getPhoneNumber(); // User 엔티티의 phoneNumber
         this.loginId = user.getLoginId();         // User 엔티티의 loginId
         this.introduction = user.getIntroduction(); // User 엔티티의 introduction
         this.currentImageId = user.getCurrentImageId(); // User 엔티티의 현재 프로필
@@ -33,10 +29,8 @@ public class UserInfoDto {
     public static UserInfoDto from(User user) {
         return UserInfoDto.builder()
                 .userId(user.getUserId())
-                .name(user.getName())
                 .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
-                .loginId(user.getPhoneNumber())
+                .loginId(user.getLoginId())
                 .introduction(user.getIntroduction())
                 .currentImageId(user.getProfileImageUrl())
                 .build();
